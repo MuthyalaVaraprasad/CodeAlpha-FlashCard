@@ -1,0 +1,31 @@
+name: flashcard_quiz_app
+description: "A premium Flashcard Quiz App designed for CodeAlpha Internship submission."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.1
+  sqflite: ^2.3.0
+  path: ^1.9.0
+  shared_preferences: ^2.2.2
+  google_fonts: ^6.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    # Adding placeholder definitions in case user wants local assets later,
+    # but we will build full modern CSS/SVG vector representations dynamically in code
+    # to avoid file missing errors during evaluation!
+    - assets/

@@ -1,0 +1,2860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlashCard Quiz App - Interactive Web Emulator</title>
+  
+  <!-- Modern Fonts and Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* --- CSS DESIGN SYSTEM (Vanilla CSS) --- */
+    :root {
+      /* Theme variables (Light Mode default) */
+      --primary-color: #6f35a5;
+      --primary-grad-start: #6a1b9a;
+      --primary-grad-end: #9c27b0;
+      --gradient: linear-gradient(135deg, var(--primary-grad-start), var(--primary-grad-end));
+      
+      --phone-bg: #f8f9fe;
+      --surface-color: #ffffff;
+      --text-color: #2d3142;
+      --text-secondary: #9094a6;
+      --card-border: #f0f1f6;
+      --shadow-color: rgba(111, 53, 165, 0.08);
+      
+      --gk-color: #00bfa5;
+      --gk-bg: #e0f2f1;
+      --cs-color: #ff9100;
+      --cs-bg: #fff3e0;
+      --sc-color: #00e676;
+      --sc-bg: #e8f5e9;
+    }
+
+    /* Dark Mode variables applied to phone body only */
+    .dark-mode {
+      --phone-bg: #0f0e17;
+      --surface-color: #242235;
+      --text-color: #fffffe;
+      --text-secondary: #a7a9be;
+      --card-border: rgba(255, 255, 255, 0.05);
+      --shadow-color: rgba(0, 0, 0, 0.3);
+      
+      --gk-bg: rgba(0, 191, 165, 0.15);
+      --cs-bg: rgba(255, 145, 0, 0.15);
+      --sc-bg: rgba(0, 230, 118, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Desktop Wallpaper container wrapping the emulator */
+    body {
+      background: radial-gradient(circle at top left, #2c1654, #0d061a);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      color: #fff;
+    }
+
+    .desktop-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .desktop-header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #d1c4e9, #e040fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 5px;
+    }
+
+    .desktop-header p {
+      color: #b39ddb;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .desktop-header span {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    .phone-container {
+      position: relative;
+      width: calc(min(800px, 90vh) * (390 / 800));
+      height: min(800px, 90vh);
+      background: #1e1e1e;
+      border: 12px solid #2d2d2d;
+      border-radius: 46px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 
+                  0 0 0 4px #444, 
+                  inset 0 0 10px rgba(0,0,0,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s, height 0.3s;
+    }
+
+    /* Dynamic Island Notch */
+    .phone-notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 1000;
+      box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 10px;
+    }
+
+    .phone-notch::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      border: 1px solid #222;
+    }
+
+    /* --- MOBILE APP LAYOUT CANVAS --- */
+    .app-canvas {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--phone-bg);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+      overflow: hidden;
+    }
+
+    /* App Screens wrapper */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      padding-top: 48px; /* Room for Notch */
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* --- SPLASH SCREEN --- */
+    #splash-screen {
+      background: var(--gradient);
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      padding-top: 0;
+      z-index: 99;
+    }
+
+    .splash-logo-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .splash-card {
+      position: absolute;
+      width: 80px;
+      height: 110px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+
+    .splash-card.c1 {
+      transform: rotate(-12deg) translate(-15px, 0);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .splash-card.c2 {
+      transform: rotate(12deg) translate(15px, 0);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .splash-card.c3 {
+      transform: rotate(0deg);
+      background: #ffffff;
+      z-index: 2;
+    }
+
+    .splash-card.c3 span {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+
+    .splash-title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .splash-subtitle {
+      font-size: 1.4rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 40px;
+    }
+
+    .splash-tagline {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.55);
+      font-style: italic;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* --- ONBOARDING SCREEN --- */
+    #onboarding-screen {
+      padding: 30px 25px 25px 25px;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--phone-bg);
+    }
+
+    .onboarding-header {
+      text-align: center;
+    }
+
+    .onboarding-header h2 {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .onboarding-header h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+
+    .onboarding-graphic {
+      width: 140px;
+      height: 140px;
+      background: rgba(111, 53, 165, 0.05);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .onboarding-card {
+      position: absolute;
+      width: 62px;
+      height: 86px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      color: #fff;
+    }
+
+    .onboarding-card.back {
+      background: rgba(111, 53, 165, 0.35);
+      transform: translate(-20px, 0) rotate(-10deg);
+    }
+
+    .onboarding-card.back i { font-size: 1.8rem; }
+
+    .onboarding-card.front {
+      background: var(--primary-color);
+      transform: translate(20px, 0) rotate(10deg);
+      z-index: 2;
+    }
+
+    .onboarding-card.front i { font-size: 1.8rem; }
+
+    .onboarding-features {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .feature-item i {
+      width: 28px;
+      height: 28px;
+      background: rgba(111, 53, 165, 0.1);
+      color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+
+    .feature-item p {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 16px var(--shadow-color);
+      transition: all 0.2s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      filter: brightness(0.9);
+    }
+
+    /* --- HOME SCREEN --- */
+    .app-header {
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .app-header i {
+      color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    .home-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 20px 80px 20px;
+    }
+
+    /* Total Flashcard Banner Box */
+    .total-banner {
+      background: var(--gradient);
+      border-radius: 24px;
+      padding: 24px;
+      color: #fff;
+      box-shadow: 0 10px 20px var(--shadow-color);
+      margin-bottom: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .total-banner::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+    }
+
+    .total-banner-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+
+    .total-banner-value {
+      font-size: 3rem;
+      font-weight: 800;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .section-link {
+      font-size: 0.85rem;
+      color: var(--primary-color);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Category lists cards */
+    .categories-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .category-card {
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      transition: all 0.2s;
+    }
+
+    .category-card:active {
+      transform: scale(0.98);
+    }
+
+    .category-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-right: 16px;
+    }
+
+    .category-card.gk .category-card-icon { color: var(--gk-color); background: var(--gk-bg); }
+    .category-card.cs .category-card-icon { color: var(--cs-color); background: var(--cs-bg); }
+    .category-card.sc .category-card-icon { color: var(--sc-color); background: var(--sc-bg); }
+
+    .category-card-details {
+      flex: 1;
+    }
+
+    .category-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .category-card-count {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .category-card i.fa-chevron-right {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      opacity: 0.5;
+    }
+
+    /* --- SHELL BOTTOM NAVIGATION BAR --- */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background: var(--surface-color);
+      border-top: 1.5px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .nav-item i {
+      font-size: 1.25rem;
+    }
+
+    .nav-item span {
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .nav-item.active {
+      color: var(--primary-color);
+    }
+
+    /* --- FLASHCARD STUDY VIEW SCREEN --- */
+    .study-deck-selector {
+      padding: 12px 18px;
+      background: var(--card-border);
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .study-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .study-meta-category {
+      color: var(--text-secondary);
+    }
+
+    .study-meta-count {
+      color: var(--primary-color);
+    }
+
+    .study-progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(111, 53, 165, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    .study-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary-color);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    /* --- 3D FLIP CARD DESIGN --- */
+    .card-space {
+      flex: 1;
+      perspective: 1000px;
+      margin-bottom: 12px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .card-space.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 28px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border: 2px solid var(--card-border);
+    }
+
+    .card-face.front {
+      background: var(--surface-color);
+    }
+
+    .card-face.back {
+      background: var(--surface-color);
+      transform: rotateY(180deg);
+    }
+
+    .card-face-header {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: 1.5px;
+    }
+
+    .card-face-body {
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.4;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .card-face-footer {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .evaluation-row {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .btn-eval {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .btn-eval.still-learning {
+      background: transparent;
+      border: 1.5px solid #ef5350;
+      color: #ef5350;
+    }
+
+    .btn-eval.know-it {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .btn-eval:active {
+      transform: scale(0.96);
+    }
+
+    .navigation-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 5px;
+    }
+
+    .btn-nav-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color);
+      font-size: 0.85rem;
+    }
+
+    .btn-nav-arrow:active {
+      background: var(--card-border);
+    }
+
+    .btn-flip-primary {
+      flex: 1;
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px var(--shadow-color);
+      text-align: center;
+    }
+
+    /* Empty study deck template style */
+    .empty-study-state {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .empty-study-state i {
+      font-size: 4rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .empty-study-state h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .empty-study-state p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+
+    /* --- FLASHCARD COLLECTION (ALL LIST) --- */
+    .list-meta {
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .list-cards-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .list-item-card {
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+
+    .list-item-info {
+      flex: 1;
+      padding-right: 15px;
+    }
+
+    .list-item-q {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .list-item-a {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-item-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .list-item-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      background: transparent;
+    }
+
+    .list-item-btn.edit {
+      color: var(--primary-color);
+    }
+
+    .list-item-btn.delete {
+      color: #ef5350;
+    }
+
+    .list-item-btn:active {
+      background: var(--card-border);
+    }
+
+    .list-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      color: var(--text-secondary);
+      gap: 15px;
+      text-align: center;
+    }
+
+    .list-empty i { font-size: 3rem; opacity: 0.5; }
+
+    /* --- ADD & EDIT FLASHCARD VIEW --- */
+    .form-screen {
+      padding: 15px 20px 80px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--phone-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary-color);
+    }
+
+    textarea.form-input {
+      resize: none;
+      height: 100px;
+      font-family: inherit;
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236f35a5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 18px;
+      cursor: pointer;
+    }
+
+    .btn-delete-link {
+      background: transparent;
+      border: none;
+      color: #ef5350;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: center;
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    /* --- STATISTICS VIEW --- */
+    .stats-boxes-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .stats-summary-box {
+      flex: 1;
+      background: rgba(111, 53, 165, 0.06);
+      border: 1.5px solid rgba(111, 53, 165, 0.12);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .stats-summary-box h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stats-summary-box span {
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .progress-circle-card {
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      margin-bottom: 25px;
+    }
+
+    .progress-circle-widget {
+      position: relative;
+      width: 84px;
+      height: 84px;
+    }
+
+    .progress-circle-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-circle-svg circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .progress-circle-bg {
+      stroke: rgba(111, 53, 165, 0.1);
+    }
+
+    .progress-circle-fill {
+      stroke: var(--primary-color);
+      stroke-linecap: round;
+      stroke-dasharray: 238; /* 2 * pi * r (r=38) */
+      stroke-dashoffset: 238;
+      transition: stroke-dashoffset 0.4s ease;
+    }
+
+    .progress-circle-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+
+    .progress-circle-details h5 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .progress-circle-details p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .category-stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .cat-stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cat-stat-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .cat-stat-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(111, 53, 165, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cat-stat-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary-color);
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    /* --- SETTINGS SCREEN --- */
+    .settings-section-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin: 15px 0 10px 4px;
+    }
+
+    .settings-card {
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .settings-row:not(:last-child) {
+      border-bottom: 1.5px solid var(--card-border);
+    }
+
+    .settings-row:active {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .settings-row-label {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .settings-row-label i {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+    }
+
+    .settings-row-label.danger { color: #ef5350; }
+    .settings-row-label.danger i { color: #ef5350; }
+
+    .settings-row i.fa-chevron-right {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    /* Switch toggler UI */
+    .switch-widget {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 26px;
+    }
+
+    .switch-widget input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .switch-slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .switch-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* --- MODALS & DIALOGS --- */
+    .dialog-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+
+    .dialog-box {
+      width: 100%;
+      background: var(--surface-color);
+      border-radius: 24px;
+      padding: 30px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popUp {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .dialog-icon-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #ffebee;
+      border: 3px solid #ffcdd2;
+      color: #ef5350;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+
+    .dialog-icon-circle.info {
+      background: #e8f5e9;
+      border-color: #c8e6c9;
+      color: #4caf50;
+    }
+
+    .dialog-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .dialog-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+
+    .dialog-buttons {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .dialog-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .dialog-btn.cancel {
+      background: transparent;
+      border: 1.5px solid var(--card-border);
+      color: var(--text-color);
+    }
+
+    .dialog-btn.confirm-danger {
+      background: #ef5350;
+      color: #fff;
+    }
+
+    .dialog-btn.confirm-success {
+      background: var(--primary-color);
+      color: #fff;
+    }
+
+    /* Toast Notification */
+    .toast-msg {
+      position: absolute;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      z-index: 200;
+      display: none;
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Scrollbars customization inside phone canvas */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    .dark-mode ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* --- RESPONSIVE MEDIA QUERIES --- */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background: var(--phone-bg);
+        justify-content: flex-start;
+      }
+      .desktop-header {
+        display: none;
+      }
+      .phone-container {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        aspect-ratio: auto !important;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .phone-notch {
+        display: none;
+      }
+      .screen {
+        padding-top: 15px; /* Adjust top padding when notch is hidden */
+      }
+    }
+
+    /* Confetti Shower Celebrations */
+    .confetti-particle {
+      position: absolute;
+      z-index: 999;
+      pointer-events: none;
+      border-radius: 2px;
+    }
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(800px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Desktop Header -->
+  <div class="desktop-header">
+    <h1>FlashCard Quiz App</h1>
+    <p>Premium Mobile Application Mockup & Web Emulator</p>
+    <span><i class="fa-solid fa-code-branch"></i> JNTUH College Internship Portfolio Presentation</span>
+  </div>
+
+  <!-- SmartPhone Device Container -->
+  <div class="phone-container">
+    <div class="phone-notch"></div>
+    
+    <!-- Unified Mobile App Canvas wrapper -->
+    <div id="app-canvas" class="app-canvas">
+      
+      <!-- Toast Alert Box -->
+      <div id="toast" class="toast-msg">Success!</div>
+
+      <!-- --- SCREEN 1: SPLASH VIEW --- -->
+      <div id="splash-screen" class="screen active">
+        <div class="splash-logo-container">
+          <div class="splash-card c1"></div>
+          <div class="splash-card c2"></div>
+          <div class="splash-card c3"><span>?</span></div>
+        </div>
+        <h2 class="splash-title">FlashCard</h2>
+        <h3 class="splash-subtitle">Quiz App</h3>
+        <p class="splash-tagline">Learn Smarter,<br>Not Harder!</p>
+      </div>
+
+      <!-- --- SCREEN 2: ONBOARDING SCREEN --- -->
+      <div id="onboarding-screen" class="screen">
+        <div class="onboarding-header">
+          <h2>Welcome to</h2>
+          <h3>FlashCard Quiz!</h3>
+        </div>
+        
+        <div class="onboarding-graphic">
+          <div class="onboarding-card back"><i class="fa-regular fa-lightbulb"></i></div>
+          <div class="onboarding-card front"><i class="fa-solid fa-circle-check"></i></div>
+        </div>
+
+        <div class="onboarding-features">
+          <div class="feature-item">
+            <i class="fa-solid fa-check"></i>
+            <p>Create your own flashcards</p>
+          </div>
+          <div class="feature-item">
+            <i class="fa-solid fa-check"></i>
+            <p>Study and test your knowledge</p>
+          </div>
+          <div class="feature-item">
+            <i class="fa-solid fa-check"></i>
+            <p>Edit or delete anytime</p>
+          </div>
+          <div class="feature-item">
+            <i class="fa-solid fa-check"></i>
+            <p>Track your progress</p>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="navigateScreen('home')">Get Started</button>
+      </div>
+
+      <!-- --- SCREEN 3: HOME DASHBOARD SCREEN --- -->
+      <div id="home-screen" class="screen">
+        <div class="app-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>FlashCard Quiz</span>
+            <div id="home-streak-badge" style="display: none; align-items: center; gap: 4px; background: rgba(255, 145, 0, 0.15); color: #ff9100; font-size: 0.72rem; padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid rgba(255, 145, 0, 0.3);" title="Your active daily study streak!"><i class="fa-solid fa-fire"></i> <span id="home-streak-value">0</span> Day</div>
+          </div>
+          <i class="fa-solid fa-magnifying-glass" onclick="triggerSearch()"></i>
+        </div>
+
+        <div class="home-content">
+          <!-- Total Banner Counter exactly matching mockup -->
+          <div class="total-banner">
+            <div class="total-banner-label">Total Flashcards</div>
+            <div id="home-total-count" class="total-banner-value">0</div>
+          </div>
+
+          <div class="section-title-row">
+            <h3 class="section-title">Categories</h3>
+            <span class="section-link" onclick="openCategoryDeck('All')">See All</span>
+          </div>
+
+          <!-- Category Tags List mapping to reference -->
+          <div id="home-categories-list" class="categories-list">
+            <!-- Populated dynamically in JavaScript -->
+          </div>
+
+          <!-- Add custom category button -->
+          <button class="btn-primary" onclick="triggerAddCategory()" style="background: transparent; border: 1.5px solid var(--primary-color); color: var(--primary-color); box-shadow: none; margin-bottom: 20px; margin-top: -10px;"><i class="fa-solid fa-folder-plus"></i> Add Category</button>
+
+          <!-- Inline add flashcard button -->
+          <button class="btn-primary" onclick="openAddScreen()"><i class="fa-solid fa-plus"></i> Add Flashcard</button>
+        </div>
+      </div>
+
+      <!-- --- SCREEN 4: STUDY SESSION SCREEN --- -->
+      <div id="study-screen" class="screen">
+        <div class="app-header">
+          <i class="fa-solid fa-chevron-left" onclick="navigateScreen('home')"></i>
+          <span>Study Deck</span>
+          <span></span>
+        </div>
+
+        <div class="home-content" style="display: flex; flex-direction: column;">
+          
+          <!-- Study Deck selector selector drop tag -->
+          <div class="study-deck-selector" onclick="triggerCategorySelectDropdown()">
+            <span id="study-deck-label">All Categories</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+
+          <!-- Challenge Mode Switcher -->
+          <div class="challenge-control-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--surface-color); border: 1.5px solid var(--card-border); padding: 10px 16px; border-radius: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem;">
+              <i class="fa-solid fa-stopwatch" style="color: var(--primary-color);"></i>
+              <span>15s Challenge Mode</span>
+            </div>
+            <label class="switch-widget">
+              <input type="checkbox" id="challenge-mode-toggle" onchange="toggleChallengeMode(this.checked)">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <!-- Empty state shell -->
+          <div id="empty-study-deck" class="empty-study-state">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <h3>No Cards Available</h3>
+            <p>Add some card sets to this category deck to begin studying!</p>
+            <button class="btn-primary" onclick="openAddScreen()" style="width: auto; padding: 12px 24px;">Create Card</button>
+          </div>
+
+          <!-- Main study content card layout -->
+          <div id="active-study-deck" style="flex: 1; display: flex; flex-direction: column;">
+            <!-- Progress metadata numbers matching study screens -->
+            <div class="study-meta">
+              <span id="study-active-category" class="study-meta-category">General Knowledge</span>
+              <span id="study-active-ratio" class="study-meta-count">3/12</span>
+            </div>
+
+            <!-- Progress Loader bar -->
+            <div class="study-progress-bar">
+              <div id="study-progress-fill" class="study-progress-fill"></div>
+            </div>
+
+            <!-- Challenge Timer Visual Indicator -->
+            <div id="challenge-timer-container" style="display: none; width: 100%; height: 4px; background: rgba(0,0,0,0.05); border-radius: 2px; overflow: hidden; margin-top: -20px; margin-bottom: 25px;">
+              <div id="challenge-timer-fill" style="width: 100%; height: 100%; background: #ff9100; transition: width 0.1s linear;"></div>
+            </div>
+
+            <!-- Interactive 3D flip card card element -->
+            <div id="study-card-outer" class="card-space" onclick="toggleCardFlip()">
+              <div class="flip-card-inner">
+                <!-- Front Question side -->
+                <div class="card-face front">
+                  <div class="card-face-header" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                    <span>QUESTION</span>
+                    <button id="btn-speak-question" onclick="speakActiveQuestion(event)" style="background: transparent; border: none; cursor: pointer; color: var(--primary-color); font-size: 1rem; padding: 4px; display: flex; align-items: center; justify-content: center;" title="Speak question"><i class="fa-solid fa-volume-high"></i></button>
+                  </div>
+                  <div id="study-question-text" class="card-face-body">What is the capital of France?</div>
+                  <div class="card-face-footer"><i class="fa-solid fa-repeat"></i> Tap card to flip</div>
+                </div>
+                <!-- Back Answer side -->
+                <div class="card-face back">
+                  <div class="card-face-header">ANSWER</div>
+                  <div id="study-answer-text" class="card-face-body">Paris</div>
+                  <div class="card-face-footer"><i class="fa-solid fa-circle-check"></i> Answer verified</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Self evaluation panel -->
+            <div class="evaluation-row">
+              <button class="btn-eval still-learning" onclick="markCardStudied(false)"><i class="fa-solid fa-xmark"></i> Still Learning</button>
+              <button class="btn-eval know-it" onclick="markCardStudied(true)"><i class="fa-solid fa-check"></i> Know It!</button>
+            </div>
+
+            <!-- Bottom navigation and flip button -->
+            <div class="navigation-row">
+              <button class="btn-nav-arrow" onclick="navigateStudyCard(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+              <button id="btn-flip-label" class="btn-flip-primary" onclick="toggleCardFlip()">Show Answer</button>
+              <button class="btn-nav-arrow" onclick="navigateStudyCard(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- --- SCREEN 5: ALL FLASHCARDS LIST --- -->
+      <div id="list-screen" class="screen">
+        <div class="app-header">
+          <i class="fa-solid fa-chevron-left" onclick="navigateScreen('home')"></i>
+          <span id="list-screen-title">All Flashcards</span>
+          <i class="fa-solid fa-plus" onclick="openAddScreen()"></i>
+        </div>
+
+        <div class="list-meta">
+          <span style="color: var(--text-secondary);">Collection Size</span>
+          <span id="list-total-count" style="color: var(--primary-color);">0 Cards</span>
+        </div>
+        <hr style="border: none; border-top: 1.5px solid var(--card-border);">
+
+        <!-- Dynamic Flashcards inventory list -->
+        <div id="list-cards-container" class="list-cards-container">
+          <!-- Populated in JS -->
+        </div>
+      </div>
+
+      <!-- --- SCREEN 6: ADD & EDIT FLASHCARD SCREEN --- -->
+      <div id="form-screen" class="screen">
+        <div class="app-header">
+          <i class="fa-solid fa-xmark" onclick="closeFormScreen()"></i>
+          <span id="form-screen-title">Add Flashcard</span>
+          <span></span>
+        </div>
+
+        <div class="form-screen">
+          <form id="flashcard-form" onsubmit="saveForm(event)">
+            <!-- Question inputs -->
+            <div class="form-group">
+              <label class="form-label">Question</label>
+              <textarea id="form-question" class="form-input" placeholder="Enter your question" required></textarea>
+            </div>
+
+            <!-- Answer inputs -->
+            <div class="form-group" style="margin-top: 18px;">
+              <label class="form-label">Answer</label>
+              <textarea id="form-answer" class="form-input" placeholder="Enter the answer" required></textarea>
+            </div>
+
+            <!-- Category selector -->
+            <div class="form-group" style="margin-top: 18px;">
+              <label class="form-label">Category</label>
+              <select id="form-category" class="form-input form-select" required>
+                <option value="General Knowledge">General Knowledge</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Science">Science</option>
+              </select>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="margin-top: 40px;">
+              <button type="submit" id="btn-form-submit" class="btn-primary">Save Flashcard</button>
+              <button type="button" id="btn-form-delete" class="btn-delete-link" style="display: none;" onclick="triggerFormDelete()">Delete Flashcard</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- --- SCREEN 7: STATISTICS VIEW --- -->
+      <div id="stats-screen" class="screen">
+        <div class="app-header">
+          <i class="fa-solid fa-chevron-left" onclick="navigateScreen('home')"></i>
+          <span>Your Progress</span>
+          <span></span>
+        </div>
+
+        <div class="home-content">
+          <!-- Dynamic counts boxes -->
+          <div class="stats-boxes-row">
+            <div class="stats-summary-box">
+              <h4>Total Flashcards</h4>
+              <span id="stats-total-count">0</span>
+            </div>
+            <div class="stats-summary-box">
+              <h4>Categories</h4>
+              <span id="stats-categories-count">3</span>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-bottom: 12px;">Study Progress</h3>
+
+          <!-- Circular Chart loader banner -->
+          <div class="progress-circle-card">
+            <div class="progress-circle-widget">
+              <svg class="progress-circle-svg">
+                <circle class="progress-circle-bg" cx="42" cy="42" r="38"></circle>
+                <circle id="stats-circle-fill" class="progress-circle-fill" cx="42" cy="42" r="38"></circle>
+              </svg>
+              <div id="stats-circle-percent" class="progress-circle-text">0%</div>
+            </div>
+            
+            <div class="progress-circle-details">
+              <h5 id="stats-studied-ratio">0/0</h5>
+              <p>Cards Studied</p>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-top: 20px; margin-bottom: 12px;">Study Calendar Heatmap</h3>
+          <div class="heatmap-card" style="background: var(--surface-color); border: 1.5px solid var(--card-border); padding: 14px; border-radius: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 8px var(--shadow-color);">
+            <!-- GitHub-style 7x4 Grid -->
+            <div class="heatmap-grid" id="stats-heatmap-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: 100%; max-width: 220px; margin-bottom: 10px;">
+              <!-- Populated dynamically via JS -->
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; max-width: 220px; font-size: 0.72rem; color: var(--text-secondary); opacity: 0.8;">
+              <span>Less active</span>
+              <span>More active</span>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-bottom: 16px;">Categories Progress</h3>
+
+          <!-- dynamic linear progress bars by topic -->
+          <div id="stats-categories-list" class="category-stats-list">
+            <!-- Populated dynamically in JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- --- SCREEN 8: SETTINGS SCREEN --- -->
+      <div id="settings-screen" class="screen">
+        <div class="app-header">
+          <i class="fa-solid fa-chevron-left" onclick="navigateScreen('home')"></i>
+          <span>Settings</span>
+          <span></span>
+        </div>
+
+        <div class="home-content">
+          <!-- Appearance Group -->
+          <h4 class="settings-section-title">Appearance</h4>
+          <div class="settings-card">
+            <div class="settings-row" style="cursor: default;">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-moon"></i>
+                <span>Dark Mode</span>
+              </div>
+              <label class="switch-widget">
+                <input type="checkbox" id="dark-mode-toggle" onchange="toggleThemeMode(this.checked)">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-row" style="cursor: default; border-top: 1.5px solid var(--card-border);">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-volume-high"></i>
+                <span>Sound Effects</span>
+              </div>
+              <label class="switch-widget">
+                <input type="checkbox" id="sound-effects-toggle" checked onchange="toggleSoundFX(this.checked)">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- General Group -->
+          <h4 class="settings-section-title">General</h4>
+          <div class="settings-card">
+            <div class="settings-row" onclick="triggerBackup()">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Backup to Cloud</span>
+              </div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <div class="settings-row" onclick="triggerJSONExport()">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-file-export"></i>
+                <span>Export Decks (JSON)</span>
+              </div>
+              <i class="fa-solid fa-download"></i>
+            </div>
+            <div class="settings-row" onclick="triggerJSONImportClick()">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-file-import"></i>
+                <span>Import Decks (JSON)</span>
+              </div>
+              <i class="fa-solid fa-upload"></i>
+              <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="handleJSONImport(event)">
+            </div>
+            <div class="settings-row" onclick="triggerResetProgress()">
+              <div class="settings-row-label" style="color: var(--primary-color);">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Reset Study Progress</span>
+              </div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <div class="settings-row" onclick="triggerClearAllData()">
+              <div class="settings-row-label danger">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>Clear All Data</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Group -->
+          <h4 class="settings-section-title">About</h4>
+          <div class="settings-card">
+            <div class="settings-row" onclick="triggerAboutApp()">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>About App</span>
+              </div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <div class="settings-row" onclick="triggerRateUs()">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-star"></i>
+                <span>Rate Us</span>
+              </div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- --- SHELL NAVIGATION CONTROL CONTAINER --- -->
+      <nav id="app-bottom-nav" class="bottom-nav" style="display: none;">
+        <div class="nav-item active" onclick="navigateScreen('home')">
+          <i class="fa-solid fa-home"></i>
+          <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="navigateScreen('study')">
+          <i class="fa-solid fa-school"></i>
+          <span>Study</span>
+        </div>
+        <div class="nav-item" onclick="navigateScreen('stats')">
+          <i class="fa-solid fa-chart-simple"></i>
+          <span>Stats</span>
+        </div>
+        <div class="nav-item" onclick="navigateScreen('settings')">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </div>
+      </nav>
+
+      <!-- --- INTERACTIVE OVERLAY MODALS & DIALOGS --- -->
+      
+      <!-- Warning clear database dialog -->
+      <div id="dialog-confirm-clear" class="dialog-overlay">
+        <div class="dialog-box">
+          <div class="dialog-icon-circle"><i class="fa-solid fa-circle-exclamation"></i></div>
+          <h4 class="dialog-title">Clear All Data</h4>
+          <p class="dialog-desc">This action will permanently delete all your custom flashcards and reset study progress. Are you sure you want to proceed?</p>
+          <div class="dialog-buttons">
+            <button class="dialog-btn cancel" onclick="closeDialog('dialog-confirm-clear')">Cancel</button>
+            <button class="dialog-btn confirm-danger" onclick="executeClearAllData()">Clear All</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning CRUD delete single card dialog -->
+      <div id="dialog-confirm-delete" class="dialog-overlay">
+        <div class="dialog-box">
+          <div class="dialog-icon-circle"><i class="fa-solid fa-trash-can"></i></div>
+          <h4 class="dialog-title">Delete Flashcard</h4>
+          <p class="dialog-desc">Are you sure you want to delete this flashcard from your study deck?</p>
+          <div class="dialog-buttons">
+            <button class="dialog-btn cancel" onclick="closeDialog('dialog-confirm-delete')">Cancel</button>
+            <button class="dialog-btn confirm-danger" id="btn-delete-card-confirm">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info about application dialog popup -->
+      <div id="dialog-about" class="dialog-overlay">
+        <div class="dialog-box">
+          <div class="dialog-icon-circle info" style="color: var(--primary-color); background: rgba(111,53,165,0.08); border-color: rgba(111,53,165,0.15);"><i class="fa-solid fa-graduation-cap"></i></div>
+          <h4 class="dialog-title">FlashCard Quiz App</h4>
+          <p class="dialog-desc" style="text-align: left; font-size: 0.88rem; margin-bottom: 20px;">
+            <strong>Version:</strong> 1.0.0<br>
+            <strong>Internship Domain:</strong> App Development<br>
+            <strong>Organization:</strong> CodeAlpha<br><br>
+            Developed by a student of JNTUH UCEJ College. Meets all requirements for Task 1: FlashCard Quiz App submission.
+          </p>
+          <div class="dialog-buttons">
+            <button class="dialog-btn confirm-success" style="flex: 1;" onclick="closeDialog('dialog-about')">Close</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- --- JAVASCRIPT EMULATION ENGINE --- -->
+  <script>
+    // --- STARTER/MOCK CARD DATASET ---
+    const starterDecks = [
+      { id: 1, question: "What is the capital of France?", answer: "Paris", category: "General Knowledge", isStudied: false },
+      { id: 2, question: "Which planet is known as the Red Planet?", answer: "Mars", category: "General Knowledge", isStudied: false },
+      { id: 3, question: "Who wrote the play Hamlet?", answer: "William Shakespeare", category: "General Knowledge", isStudied: false },
+      { id: 4, question: "What is the chemical symbol for water?", answer: "H2O", category: "Science", isStudied: false },
+      { id: 5, question: "Who is known as the father of India?", answer: "Mahatma Gandhi", category: "General Knowledge", isStudied: false },
+      { id: 6, question: "What does CPU stand for?", answer: "Central Processing Unit", category: "Computer Science", isStudied: false },
+      { id: 7, question: "What is the primary language used to build Flutter apps?", answer: "Dart", category: "Computer Science", isStudied: false },
+      { id: 8, question: "What does HTML stand for?", answer: "HyperText Markup Language", category: "Computer Science", isStudied: false },
+      { id: 9, question: "Which planet is closest to the Sun?", answer: "Mercury", category: "Science", isStudied: false },
+      { id: 10, question: "What is the square root of 144?", answer: "12", category: "General Knowledge", isStudied: false },
+      { id: 11, question: "What gas do plants absorb during photosynthesis?", answer: "Carbon Dioxide", category: "Science", isStudied: false },
+      { id: 12, question: "What is the full form of SQL?", answer: "Structured Query Language", category: "Computer Science", isStudied: false }
+    ];
+
+    // --- APPLICATION VARIABLES ---
+    let flashcards = [];
+    let categories = [];
+    let activeCategoryFilter = "All";
+    let activeStudyIndex = 0;
+    let editingCardId = null;
+    let deletingCardId = null;
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      // Load categories
+      const storedCats = localStorage.getItem('flashcard_categories');
+      if (storedCats) {
+        categories = JSON.parse(storedCats);
+      } else {
+        categories = ["General Knowledge", "Computer Science", "Science"];
+        localStorage.setItem('flashcard_categories', JSON.stringify(categories));
+      }
+
+      // Load state from localStorage or initialize with seed data
+      const stored = localStorage.getItem('flashcard_decks');
+      if (stored) {
+        flashcards = JSON.parse(stored);
+      } else {
+        flashcards = [...starterDecks];
+        saveToLocalStorage();
+      }
+
+      // Check for theme preferences
+      const darkTheme = localStorage.getItem('dark_mode_theme') === 'true';
+      document.getElementById('dark-mode-toggle').checked = darkTheme;
+      toggleThemeMode(darkTheme);
+
+      // Check sound FX toggle
+      const soundFX = localStorage.getItem('sound_fx_enabled') !== 'false';
+      document.getElementById('sound-effects-toggle').checked = soundFX;
+      toggleSoundFX(soundFX);
+
+      // Auto start splash sequence
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        splash.style.transition = 'opacity 0.5s ease-out';
+        splash.style.opacity = 0;
+        setTimeout(() => {
+          splash.classList.remove('active');
+          navigateScreen('onboarding');
+        }, 500);
+      }, 2500);
+
+      // Render stats & update dashboard metrics
+      populateFormCategoryDropdown();
+      updateDashboardData();
+    });
+
+    // --- STORAGE PIPELINE ---
+    function saveToLocalStorage() {
+      localStorage.setItem('flashcard_decks', JSON.stringify(flashcards));
+    }
+
+    // --- ROUTER NAVIGATION ---
+    function navigateScreen(screenId) {
+      // Deactivate all screens
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => s.classList.remove('active'));
+
+      // Activate selected screen
+      const activeScreen = document.getElementById(`${screenId}-screen`);
+      if (activeScreen) {
+        activeScreen.classList.add('active');
+      }
+
+      // Deactivate form overlay or list screen details if they are active
+      if (screenId === 'splash' || screenId === 'onboarding' || screenId === 'list' || screenId === 'form') {
+        document.getElementById('app-bottom-nav').style.display = 'none';
+      } else {
+        document.getElementById('app-bottom-nav').style.display = 'flex';
+      }
+
+      // Update Nav active style
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+
+      let navIndex = 0;
+      if (screenId === 'home') navIndex = 0;
+      else if (screenId === 'study') navIndex = 1;
+      else if (screenId === 'stats') navIndex = 2;
+      else if (screenId === 'settings') navIndex = 3;
+
+      if (navItems[navIndex]) {
+        navItems[navIndex].classList.add('active');
+      }
+
+      // Specific view initialization routines
+      if (screenId === 'study') {
+        initializeStudyDeck();
+      } else if (screenId === 'stats') {
+        renderProgressStats();
+      } else if (screenId === 'home') {
+        updateDashboardData();
+      }
+    }
+
+    // --- FORM CATEGORY DROPDOWN POPULATOR ---
+    function populateFormCategoryDropdown() {
+      const select = document.getElementById('form-category');
+      if (!select) return;
+      select.innerHTML = '';
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.innerText = cat;
+        select.appendChild(opt);
+      });
+    }
+
+    // --- ADD CATEGORY OPERATION ---
+    function triggerAddCategory() {
+      const newCat = prompt("Enter new category name:");
+      if (!newCat) return;
+      const trimmed = newCat.trim();
+      if (trimmed === "") return;
+
+      if (categories.map(c => c.toLowerCase()).includes(trimmed.toLowerCase())) {
+        alert("This category already exists!");
+        return;
+      }
+
+      categories.push(trimmed);
+      localStorage.setItem('flashcard_categories', JSON.stringify(categories));
+      
+      updateDashboardData();
+      populateFormCategoryDropdown();
+      showToast(`Category "${trimmed}" added! 📁`);
+    }
+
+    function triggerEditCategory(oldName) {
+      const newName = prompt("Edit category name:", oldName);
+      if (!newName) return;
+      const trimmed = newName.trim();
+      if (trimmed === "" || trimmed === oldName) return;
+
+      if (categories.map(c => c.toLowerCase()).includes(trimmed.toLowerCase())) {
+        alert("This category name already exists!");
+        return;
+      }
+
+      // 1. Update categories array
+      const catIndex = categories.indexOf(oldName);
+      if (catIndex !== -1) {
+        categories[catIndex] = trimmed;
+        localStorage.setItem('flashcard_categories', JSON.stringify(categories));
+      }
+
+      // 2. Update all flashcards category field
+      flashcards.forEach(c => {
+        if (c.category === oldName) {
+          c.category = trimmed;
+        }
+      });
+      saveToLocalStorage();
+
+      // 3. Update dashboard and drop downs
+      updateDashboardData();
+      populateFormCategoryDropdown();
+      showToast(`Category renamed to "${trimmed}"! ✏️`);
+    }
+
+    function triggerDeleteCategory(catName) {
+      const confirmDelete = confirm(`Are you sure you want to delete the category "${catName}"?\n\nWARNING: All flashcards belonging to this category will be permanently deleted!`);
+      if (!confirmDelete) return;
+
+      // 1. Remove from categories array
+      categories = categories.filter(c => c !== catName);
+      localStorage.setItem('flashcard_categories', JSON.stringify(categories));
+
+      // 2. Remove all flashcards under this category
+      flashcards = flashcards.filter(c => c.category !== catName);
+      saveToLocalStorage();
+
+      // 3. Update dashboard, drop downs, and progress stats
+      updateDashboardData();
+      populateFormCategoryDropdown();
+      showToast(`Category "${catName}" deleted. 🗑️`);
+    }
+
+    // --- DASHBOARD DATA UPDATER ---
+    function updateDashboardData() {
+      const total = flashcards.length;
+      document.getElementById('home-total-count').innerText = total;
+
+      const listContainer = document.getElementById('home-categories-list');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      const catMeta = {
+        "General Knowledge": { icon: "fa-earth-americas", styleClass: "gk" },
+        "Computer Science": { icon: "fa-laptop-code", styleClass: "cs" },
+        "Science": { icon: "fa-flask", styleClass: "sc" }
+      };
+
+      categories.forEach(cat => {
+        const count = flashcards.filter(c => c.category === cat).length;
+        const meta = catMeta[cat] || { icon: "fa-folder-open", styleClass: "gk" };
+
+        const card = document.createElement('div');
+        card.className = `category-card ${meta.styleClass}`;
+        if (!catMeta[cat]) {
+          card.style.borderColor = 'rgba(111, 53, 165, 0.15)';
+        }
+        card.innerHTML = `
+          <div class="category-card-main" onclick="openCategoryDeck('${cat.replace(/'/g, "\\'")}')" style="display: flex; align-items: center; flex: 1; gap: 15px; cursor: pointer;">
+            <div class="category-card-icon"><i class="fa-solid ${meta.icon}"></i></div>
+            <div class="category-card-details">
+              <h4 class="category-card-title">${cat}</h4>
+              <p class="category-card-count">${count} Cards</p>
+            </div>
+          </div>
+          <div class="category-card-actions" style="display: flex; gap: 12px; align-items: center; z-index: 10;">
+            <button onclick="triggerEditCategory('${cat.replace(/'/g, "\\'")}')" style="background: transparent; border: none; cursor: pointer; color: var(--primary-color); font-size: 0.95rem; padding: 4px;" title="Edit Category"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="triggerDeleteCategory('${cat.replace(/'/g, "\\'")}')" style="background: transparent; border: none; cursor: pointer; color: #ef5350; font-size: 0.95rem; padding: 4px;" title="Delete Category"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+      
+      // Update gamified Daily Study Streak
+      updateStreakDisplay();
+    }
+
+    // --- STUDY ENGINE LOGIC ---
+    function openCategoryDeck(categoryName) {
+      activeCategoryFilter = categoryName;
+      navigateScreen('study');
+    }
+
+    function initializeStudyDeck() {
+      // Filter list
+      const filtered = activeCategoryFilter === 'All' 
+          ? flashcards 
+          : flashcards.filter(c => c.category === activeCategoryFilter);
+
+      const labelText = activeCategoryFilter === 'All' ? "All Categories" : activeCategoryFilter;
+      document.getElementById('study-deck-label').innerText = labelText;
+
+      const activeDeckDiv = document.getElementById('active-study-deck');
+      const emptyDeckDiv = document.getElementById('empty-study-deck');
+
+      if (filtered.length === 0) {
+        activeDeckDiv.style.display = 'none';
+        emptyDeckDiv.style.display = 'flex';
+        return;
+      }
+
+      activeDeckDiv.style.display = 'flex';
+      emptyDeckDiv.style.display = 'none';
+
+      // Clamp current card index
+      if (activeStudyIndex >= filtered.length) {
+        activeStudyIndex = 0;
+      }
+
+      // Unflip card
+      const cardOuter = document.getElementById('study-card-outer');
+      cardOuter.classList.remove('flipped');
+      document.getElementById('btn-flip-label').innerText = "Show Answer";
+
+      // Render details
+      const card = filtered[activeStudyIndex];
+      document.getElementById('study-active-category').innerText = card.category;
+      document.getElementById('study-active-ratio').innerText = `${activeStudyIndex + 1}/${filtered.length}`;
+      
+      // Update linear loader
+      const pct = ((activeStudyIndex + 1) / filtered.length) * 100;
+      document.getElementById('study-progress-fill').style.width = `${pct}%`;
+
+      document.getElementById('study-question-text').innerText = card.question;
+      document.getElementById('study-answer-text').innerText = card.answer;
+      
+      // Auto-restart challenge countdown timer
+      resetChallengeTimer();
+    }
+
+    function triggerCategorySelectDropdown() {
+      const list = ["All", ...categories];
+      let promptText = "Select category deck to study:\n";
+      list.forEach((cat, i) => {
+        promptText += `\n${i + 1}. ${cat}`;
+      });
+
+      const choice = prompt(`Select Deck Category (Type 1-${list.length}):`, "1");
+      if (choice && choice >= 1 && choice <= list.length) {
+        activeCategoryFilter = list[choice - 1];
+        activeStudyIndex = 0;
+        initializeStudyDeck();
+      }
+    }
+
+    function toggleCardFlip() {
+      const cardOuter = document.getElementById('study-card-outer');
+      cardOuter.classList.toggle('flipped');
+      
+      const isFlipped = cardOuter.classList.contains('flipped');
+      document.getElementById('btn-flip-label').innerText = isFlipped ? "Hide Answer" : "Show Answer";
+      
+      // Stop timer and play flip audio
+      if (isFlipped) {
+        clearInterval(challengeInterval);
+        SoundFX.playFlip();
+      } else {
+        resetChallengeTimer();
+        SoundFX.playFlip();
+      }
+    }
+
+    function navigateStudyCard(direction) {
+      const filtered = activeCategoryFilter === 'All' 
+          ? flashcards 
+          : flashcards.filter(c => c.category === activeCategoryFilter);
+
+      if (filtered.length === 0) return;
+
+      activeStudyIndex += direction;
+      if (activeStudyIndex >= filtered.length) {
+        activeStudyIndex = 0; // Wrap around
+      } else if (activeStudyIndex < 0) {
+        activeStudyIndex = filtered.length - 1; // Wrap back
+      }
+
+      initializeStudyDeck();
+    }
+
+    function markCardStudied(isStudied) {
+      const filtered = activeCategoryFilter === 'All' 
+          ? flashcards 
+          : flashcards.filter(c => c.category === activeCategoryFilter);
+
+      if (filtered.length === 0) return;
+      
+      const activeCard = filtered[activeStudyIndex];
+      const index = flashcards.findIndex(c => c.id === activeCard.id);
+      if (index !== -1) {
+        flashcards[index].isStudied = isStudied;
+        saveToLocalStorage();
+      }
+
+      // Log to calendar heatmap database if studied
+      if (isStudied) {
+        let studyHistory = [];
+        const storedHistory = localStorage.getItem('flashcard_study_history');
+        if (storedHistory) {
+          studyHistory = JSON.parse(storedHistory);
+        }
+        const todayStr = new Date().toISOString().split('T')[0];
+        studyHistory.push(todayStr);
+        localStorage.setItem('flashcard_study_history', JSON.stringify(studyHistory));
+      }
+
+      // Display dynamic popup message and play audio feedback
+      if (isStudied) {
+        const remainingUnstudied = filtered.filter(c => !c.isStudied).length;
+        if (remainingUnstudied === 0) {
+          showToast("Masterclass! Deck Completed! 🏆🎉");
+          SoundFX.playSuccess();
+          triggerConfetti();
+        } else {
+          showToast("Amazing! Marked as Studied! 🚀");
+          SoundFX.playSuccess();
+        }
+      } else {
+        showToast("Marked: Need to review this card!");
+        SoundFX.playWarning();
+      }
+
+      // Automatically slide to next card
+      setTimeout(() => {
+        navigateStudyCard(1);
+      }, 800);
+    }
+
+    // --- COLLECTION ALL LIST ENGINE ---
+    function openListCategory(categoryName) {
+      navigateScreen('list');
+      document.getElementById('app-bottom-nav').style.display = 'none';
+
+      document.getElementById('list-screen-title').innerText = categoryName === 'All' ? "All Flashcards" : categoryName;
+      renderCardsList(categoryName);
+    }
+
+    // Route category cards "See All" triggers
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.classList.contains('section-link')) {
+        openListCategory('All');
+      }
+    });
+
+    function renderCardsList(filterName) {
+      const filtered = filterName === 'All' 
+          ? flashcards 
+          : flashcards.filter(c => c.category === filterName);
+
+      document.getElementById('list-total-count').innerText = `${filtered.length} Cards`;
+      const container = document.getElementById('list-cards-container');
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="list-empty">
+            <i class="fa-solid fa-layers-clear"></i>
+            <p>No Flashcards Found<br>Add a new flashcard to get started!</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(card => {
+        const item = document.createElement('div');
+        item.className = 'list-item-card';
+        item.innerHTML = `
+          <div class="list-item-info">
+            <h4 class="list-item-q">${card.question}</h4>
+            <p class="list-item-a">Answer: ${card.answer}</p>
+          </div>
+          <div class="list-item-actions">
+            <button class="list-item-btn edit" onclick="openEditScreen(${card.id})"><i class="fa-solid fa-pencil"></i></button>
+            <button class="list-item-btn delete" onclick="triggerDeleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // --- ADD / EDIT FORM CRUD TRIGGERS ---
+    function openAddScreen() {
+      editingCardId = null;
+      document.getElementById('form-screen-title').innerText = "Add Flashcard";
+      document.getElementById('btn-form-submit').innerText = "Save Flashcard";
+      document.getElementById('btn-form-delete').style.display = 'none';
+
+      // Reset form
+      document.getElementById('form-question').value = '';
+      document.getElementById('form-answer').value = '';
+      
+      const catSelect = document.getElementById('form-category');
+      catSelect.value = activeCategoryFilter !== 'All' ? activeCategoryFilter : "General Knowledge";
+
+      navigateScreen('form');
+      document.getElementById('app-bottom-nav').style.display = 'none';
+    }
+
+    function openEditScreen(cardId) {
+      editingCardId = cardId;
+      const card = flashcards.find(c => c.id === cardId);
+      if (!card) return;
+
+      document.getElementById('form-screen-title').innerText = "Edit Flashcard";
+      document.getElementById('btn-form-submit').innerText = "Update Flashcard";
+      document.getElementById('btn-form-delete').style.display = 'block';
+
+      document.getElementById('form-question').value = card.question;
+      document.getElementById('form-answer').value = card.answer;
+      document.getElementById('form-category').value = card.category;
+
+      navigateScreen('form');
+      document.getElementById('app-bottom-nav').style.display = 'none';
+    }
+
+    function closeFormScreen() {
+      // Returns back to appropriate shell depending on state
+      if (editingCardId) {
+        openListCategory('All');
+      } else {
+        navigateScreen('home');
+      }
+    }
+
+    function saveForm(event) {
+      event.preventDefault();
+      
+      const q = document.getElementById('form-question').value.trim();
+      const a = document.getElementById('form-answer').value.trim();
+      const cat = document.getElementById('form-category').value;
+
+      if (!q || !a) return;
+
+      if (editingCardId === null) {
+        // Create new
+        const newCard = {
+          id: Date.now(), // Unique temporary id
+          question: q,
+          answer: a,
+          category: cat,
+          isStudied: false
+        };
+        flashcards.push(newCard);
+        showToast("Flashcard saved successfully! ✅");
+      } else {
+        // Update existing
+        const index = flashcards.findIndex(c => c.id === editingCardId);
+        if (index !== -1) {
+          flashcards[index].question = q;
+          flashcards[index].answer = a;
+          flashcards[index].category = cat;
+          showToast("Flashcard updated successfully! ✅");
+        }
+      }
+
+      saveToLocalStorage();
+      updateDashboardData();
+      closeFormScreen();
+    }
+
+    function triggerDeleteCard(cardId) {
+      deletingCardId = cardId;
+      openDialog('dialog-confirm-delete');
+      
+      // Bind confirmation button handler
+      const btn = document.getElementById('btn-delete-card-confirm');
+      btn.onclick = () => {
+        executeDeleteCard();
+      };
+    }
+
+    function triggerFormDelete() {
+      if (editingCardId) {
+        triggerDeleteCard(editingCardId);
+      }
+    }
+
+    function executeDeleteCard() {
+      if (deletingCardId === null) return;
+
+      flashcards = flashcards.filter(c => c.id !== deletingCardId);
+      saveToLocalStorage();
+      updateDashboardData();
+      
+      closeDialog('dialog-confirm-delete');
+      showToast("Flashcard deleted successfully!");
+
+      // If active screen is Edit Form, go back
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen.id === 'form-screen') {
+        closeFormScreen();
+      } else {
+        renderCardsList('All');
+      }
+      
+      deletingCardId = null;
+    }
+
+    // --- SEARCH FIELD DIALOG TRIGGER ---
+    function triggerSearch() {
+      const query = prompt("Search Questions & Answers:");
+      if (query !== null) {
+        navigateScreen('list');
+        document.getElementById('app-bottom-nav').style.display = 'none';
+        document.getElementById('list-screen-title').innerText = `Search: "${query}"`;
+        
+        const filtered = flashcards.filter(c => 
+          c.question.toLowerCase().includes(query.toLowerCase()) || 
+          c.answer.toLowerCase().includes(query.toLowerCase())
+        );
+
+        document.getElementById('list-total-count').innerText = `${filtered.length} Cards`;
+        const container = document.getElementById('list-cards-container');
+        container.innerHTML = '';
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="list-empty">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <p>No matching flashcards found.</p>
+            </div>
+          `;
+          return;
+        }
+
+        filtered.forEach(card => {
+          const item = document.createElement('div');
+          item.className = 'list-item-card';
+          item.innerHTML = `
+            <div class="list-item-info">
+              <h4 class="list-item-q">${card.question}</h4>
+              <p class="list-item-a">Answer: ${card.answer}</p>
+            </div>
+            <div class="list-item-actions">
+              <button class="list-item-btn edit" onclick="openEditScreen(${card.id})"><i class="fa-solid fa-pencil"></i></button>
+              <button class="list-item-btn delete" onclick="triggerDeleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      }
+    }
+
+    // --- STATISTICS DATA RENDER ---
+    function renderProgressStats() {
+      const total = flashcards.length;
+      document.getElementById('stats-total-count').innerText = total;
+      document.getElementById('stats-categories-count').innerText = categories.length;
+
+      const studied = flashcards.filter(c => c.isStudied).length;
+      document.getElementById('stats-studied-ratio').innerText = `${studied}/${total}`;
+
+      const ratio = total === 0 ? 0 : studied / total;
+      const percent = Math.round(ratio * 100);
+      document.getElementById('stats-circle-percent').innerText = `${percent}%`;
+
+      // Update Circular dash-offset (radius = 38, perimeter = 238)
+      const offset = 238 - (238 * ratio);
+      document.getElementById('stats-circle-fill').style.strokeDashoffset = offset;
+
+      // Render Study Calendar Heatmap (28-day GitHub Grid)
+      const heatmapGrid = document.getElementById('stats-heatmap-grid');
+      if (heatmapGrid) {
+        heatmapGrid.innerHTML = '';
+        
+        let studyHistory = [];
+        const storedHistory = localStorage.getItem('flashcard_study_history');
+        if (storedHistory) {
+          studyHistory = JSON.parse(storedHistory);
+        }
+        
+        const today = new Date();
+        const dates = [];
+        for (let i = 27; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(today.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          dates.push(dateStr);
+        }
+        
+        const isDarkModeActive = document.getElementById('app-canvas').classList.contains('dark-mode');
+        
+        dates.forEach(dateStr => {
+          const cell = document.createElement('div');
+          cell.style.aspectRatio = '1/1';
+          cell.style.borderRadius = '4px';
+          cell.style.cursor = 'help';
+          
+          const activityCount = studyHistory.filter(d => d === dateStr).length;
+          cell.title = `${dateStr}: ${activityCount} card(s) studied`;
+          
+          if (activityCount === 0) {
+            cell.style.background = isDarkModeActive ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+          } else if (activityCount <= 2) {
+            cell.style.background = 'rgba(111, 53, 165, 0.25)';
+          } else if (activityCount <= 5) {
+            cell.style.background = 'rgba(111, 53, 165, 0.6)';
+          } else {
+            cell.style.background = 'var(--primary-color)';
+          }
+          
+          heatmapGrid.appendChild(cell);
+        });
+      }
+
+      // Update category metrics progress bars dynamically
+      const statsList = document.getElementById('stats-categories-list');
+      if (!statsList) return;
+      statsList.innerHTML = '';
+
+      const catColors = {
+        "General Knowledge": "var(--gk-color)",
+        "Computer Science": "var(--cs-color)",
+        "Science": "var(--sc-color)"
+      };
+
+      categories.forEach(cat => {
+        const catCards = flashcards.filter(c => c.category === cat);
+        const catStudied = catCards.filter(c => c.isStudied).length;
+        const catTotal = catCards.length;
+        const catRatio = catTotal === 0 ? 0 : catStudied / catTotal;
+        const color = catColors[cat] || "var(--primary-color)";
+
+        const item = document.createElement('div');
+        item.className = 'cat-stat-item';
+        item.innerHTML = `
+          <div class="cat-stat-header">
+            <span>${cat}</span>
+            <span>${catStudied}/${catTotal}</span>
+          </div>
+          <div class="cat-stat-bar-bg">
+            <div class="cat-stat-bar-fill" style="width: ${catRatio * 100}%; background-color: ${color};"></div>
+          </div>
+        `;
+        statsList.appendChild(item);
+      });
+    }
+
+    // --- SETTINGS OPERATIONS ---
+    function toggleThemeMode(isDark) {
+      const canvas = document.getElementById('app-canvas');
+      if (isDark) {
+        canvas.classList.add('dark-mode');
+      } else {
+        canvas.classList.remove('dark-mode');
+      }
+      localStorage.setItem('dark_mode_theme', isDark);
+    }
+
+    function triggerBackup() {
+      showToast("Backup complete! Flashcards secured. ✅");
+    }
+
+    function triggerClearAllData() {
+      openDialog('dialog-confirm-clear');
+    }
+
+    function executeClearAllData() {
+      flashcards = [];
+      saveToLocalStorage();
+      updateDashboardData();
+      
+      closeDialog('dialog-confirm-clear');
+      showToast("Database entries cleared.");
+      
+      if (document.getElementById('settings-screen').classList.contains('active')) {
+        navigateScreen('settings');
+      }
+    }
+
+    function triggerAboutApp() {
+      openDialog('dialog-about');
+    }
+
+    function triggerRateUs() {
+      showToast("Thank you for supporting JNTUH UCEJ! ⭐⭐⭐⭐⭐");
+    }
+
+    // --- SOUND EFFECTS SYNTHESIZER ---
+    const SoundFX = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      },
+      playFlip() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.15);
+        } catch (e) { console.log(e); }
+      },
+      playSuccess() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+          osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.1); // E5
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.35);
+        } catch (e) { console.log(e); }
+      },
+      playWarning() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(90, this.ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.25);
+        } catch (e) { console.log(e); }
+      }
+    };
+
+    function toggleSoundFX(enabled) {
+      SoundFX.enabled = enabled;
+      localStorage.setItem('sound_fx_enabled', enabled);
+    }
+
+    // --- CELEBRATION CONFETTI ENGINE ---
+    function triggerConfetti() {
+      const canvas = document.getElementById('app-canvas');
+      if (!canvas) return;
+      
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'confetti-particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `-10px`;
+        particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
+        particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+        
+        const size = Math.random() * 8 + 6;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.animation = `confettiFall ${Math.random() * 2 + 1.5}s linear forwards`;
+        
+        canvas.appendChild(particle);
+        
+        setTimeout(() => {
+          particle.remove();
+        }, 3500);
+      }
+    }
+
+    // --- TIMED CHALLENGE CONTROLLER ---
+    let challengeInterval = null;
+    let challengeTimeRemaining = 15;
+    let challengeModeActive = false;
+
+    function toggleChallengeMode(active) {
+      challengeModeActive = active;
+      const container = document.getElementById('challenge-timer-container');
+      if (!container) return;
+      if (active) {
+        container.style.display = 'block';
+        resetChallengeTimer();
+      } else {
+        container.style.display = 'none';
+        clearInterval(challengeInterval);
+      }
+    }
+
+    function resetChallengeTimer() {
+      clearInterval(challengeInterval);
+      if (!challengeModeActive) return;
+      
+      challengeTimeRemaining = 15;
+      const fill = document.getElementById('challenge-timer-fill');
+      if (!fill) return;
+      
+      fill.style.width = '100%';
+      fill.style.background = '#ff9100';
+      
+      challengeInterval = setInterval(() => {
+        challengeTimeRemaining -= 0.1;
+        const pct = (challengeTimeRemaining / 15) * 100;
+        fill.style.width = `${pct}%`;
+        
+        if (challengeTimeRemaining <= 5) {
+          fill.style.background = '#ef5350';
+        }
+        
+        if (challengeTimeRemaining <= 0) {
+          clearInterval(challengeInterval);
+          const cardOuter = document.getElementById('study-card-outer');
+          if (cardOuter && !cardOuter.classList.contains('flipped')) {
+            toggleCardFlip();
+            SoundFX.playWarning();
+          }
+        }
+      }, 100);
+    }
+
+    // --- PORTABLE DECK DATA IMPORTER EXPORTER ---
+    function triggerJSONExport() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(flashcards, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "flashcards_backup.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("Decks exported successfully! 📂");
+    }
+
+    function triggerJSONImportClick() {
+      document.getElementById('import-file-input').click();
+    }
+
+    function handleJSONImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            if (imported.length > 0 && ('question' in imported[0] && 'answer' in imported[0])) {
+              flashcards = imported;
+              saveToLocalStorage();
+              updateDashboardData();
+              populateFormCategoryDropdown();
+              showToast("Decks imported successfully! 📥");
+            } else {
+              showToast("Error: Invalid flashcard schema in JSON!");
+            }
+          } else {
+            showToast("Error: JSON must be a list of cards!");
+          }
+        } catch (err) {
+          showToast("Error parsing selected JSON file!");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // --- TEXT TO SPEECH (TTS) voice reader ---
+    function speakActiveQuestion(event) {
+      if (event) event.stopPropagation(); // Avoid card flips
+      
+      const text = document.getElementById('study-question-text').innerText;
+      if (!text) return;
+      
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const enVoice = voices.find(v => v.lang.startsWith('en'));
+      if (enVoice) utterance.voice = enVoice;
+      
+      window.speechSynthesis.speak(utterance);
+      showToast("Speaking... 🗣️");
+    }
+
+    // --- DAILY STUDY STREAK CALCULATOR ---
+    function calculateStudyStreak() {
+      let studyHistory = [];
+      const storedHistory = localStorage.getItem('flashcard_study_history');
+      if (storedHistory) {
+        studyHistory = JSON.parse(storedHistory);
+      }
+      
+      if (studyHistory.length === 0) return 0;
+      
+      // Get unique sorted dates descending
+      const uniqueDates = Array.from(new Set(studyHistory)).sort((a, b) => new Date(b) - new Date(a));
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      
+      if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterdayStr) {
+        return 0;
+      }
+      
+      let streak = 0;
+      let checkDate = new Date();
+      
+      while (true) {
+        const checkStr = checkDate.toISOString().split('T')[0];
+        if (uniqueDates.includes(checkStr)) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          if (streak === 0 && checkStr === todayStr) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            continue;
+          }
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function updateStreakDisplay() {
+      const streak = calculateStudyStreak();
+      const badge = document.getElementById('home-streak-badge');
+      const valSpan = document.getElementById('home-streak-value');
+      if (badge && valSpan) {
+        if (streak > 0) {
+          badge.style.display = 'flex';
+          valSpan.innerText = streak;
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    // --- RESET STUDY PROGRESS ---
+    function triggerResetProgress() {
+      const confirmReset = confirm("Are you sure you want to reset all study progress?\n\nThis will mark all flashcards as unstudied and clear your calendar heatmap!");
+      if (!confirmReset) return;
+      
+      flashcards.forEach(c => c.isStudied = false);
+      saveToLocalStorage();
+      
+      localStorage.removeItem('flashcard_study_history');
+      
+      updateDashboardData();
+      renderProgressStats();
+      showToast("Progress successfully reset!");
+    }
+
+    // --- DIALOG MODALS UTILITIES ---
+    function openDialog(dialogId) {
+      document.getElementById(dialogId).style.display = 'flex';
+    }
+
+    function closeDialog(dialogId) {
+      document.getElementById(dialogId).style.display = 'none';
+    }
+
+    // Toast banner loader
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
