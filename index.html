@@ -1515,7 +1515,209 @@
         opacity: 0;
       }
     }
-  </style>
+  
+    /* --- POMODORO STUDY TIMER --- */
+    .pomodoro-container {
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+    .pomo-header {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .pomo-time {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .pomo-controls {
+      display: flex;
+      gap: 12px;
+    }
+    .pomo-btn {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: rgba(111, 53, 165, 0.08);
+      color: var(--primary-color);
+      transition: all 0.2s;
+    }
+    .pomo-btn:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
+
+    /* --- PIN SECURITY LOCK OVERLAY --- */
+    #pin-lock-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--phone-bg);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+    .pin-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-color);
+      margin-bottom: 8px;
+    }
+    .pin-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+    .pin-display {
+      font-size: 2.5rem;
+      letter-spacing: 12px;
+      font-weight: 800;
+      height: 60px;
+      color: var(--primary-color);
+    }
+    .pin-keyboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 240px;
+    }
+    .pin-key {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--surface-color);
+      border: 1.5px solid var(--card-border);
+      color: var(--text-color);
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 4px var(--shadow-color);
+      transition: all 0.2s;
+      margin: auto;
+    }
+    .pin-key:active {
+      background: var(--primary-color);
+      color: #fff;
+    }
+
+    /* --- THEME CUSTOMIZER PICKER --- */
+    .theme-picker-row {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+    }
+    .theme-color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .theme-color-dot.active {
+      transform: scale(1.15);
+      border-color: #fff;
+      box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    /* --- INTERACTIVE MATCHING GAME SCREEN --- */
+    .game-score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: var(--surface-color);
+      border-bottom: 1.5px solid var(--card-border);
+    }
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .game-tile {
+      background: var(--surface-color);
+      border: 2px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      min-height: 90px;
+      box-shadow: 0 4px 6px var(--shadow-color);
+      transition: all 0.25s;
+    }
+    .game-tile.selected {
+      border-color: var(--primary-color);
+      background: rgba(111, 53, 165, 0.05);
+      transform: scale(0.97);
+    }
+    .game-tile.matched {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* --- MOCK AI GENERATOR --- */
+    .ai-generator-box {
+      background: rgba(111, 53, 165, 0.04);
+      border: 1.5px dashed var(--primary-color);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .ai-input-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .ai-input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      outline: none;
+      font-size: 0.85rem;
+    }
+    .ai-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      background: var(--primary-color);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+</style>
 </head>
 <body>
 
@@ -1525,6 +1727,45 @@
     
     <!-- Unified Mobile App Canvas wrapper -->
     <div id="app-canvas" class="app-canvas">
+      
+      <!-- --- SCREEN 0: PIN SECURITY LOCK SCREEN --- -->
+      <div id="pin-lock-screen">
+        <div class="pin-title">Enter Passcode</div>
+
+      <!-- --- SCREEN 4.5: INTERACTIVE MATCHING GAME SCREEN --- -->
+      <div id="game-screen" class="screen">
+        <div class="app-header">
+          <i class="fa-solid fa-chevron-left" onclick="navigateScreen('home')"></i>
+          <span>Match Game</span>
+          <i class="fa-solid fa-rotate" onclick="startMatchGame()"></i>
+        </div>
+        
+        <div class="game-score-row">
+          <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-secondary);">Matches: <span id="game-matches-count" style="color: var(--primary-color);">0/4</span></span>
+          <span id="game-timer" style="font-weight: 800; color: #ff9100; font-size: 0.95rem;">0.0s</span>
+        </div>
+        
+        <div id="game-grid-container" class="game-grid">
+          <!-- Dynamically populated card grid -->
+        </div>
+      </div>
+        <div class="pin-desc">Default passcode is 1234</div>
+        <div id="pin-display-text" class="pin-display"></div>
+        <div class="pin-keyboard">
+          <button class="pin-key" onclick="pressPinKey('1')">1</button>
+          <button class="pin-key" onclick="pressPinKey('2')">2</button>
+          <button class="pin-key" onclick="pressPinKey('3')">3</button>
+          <button class="pin-key" onclick="pressPinKey('4')">4</button>
+          <button class="pin-key" onclick="pressPinKey('5')">5</button>
+          <button class="pin-key" onclick="pressPinKey('6')">6</button>
+          <button class="pin-key" onclick="pressPinKey('7')">7</button>
+          <button class="pin-key" onclick="pressPinKey('8')">8</button>
+          <button class="pin-key" onclick="pressPinKey('9')">9</button>
+          <button class="pin-key" onclick="pressPinKey('Clear')" style="font-size: 0.8rem; border-radius: 12px; height: auto;">Clear</button>
+          <button class="pin-key" onclick="pressPinKey('0')">0</button>
+          <button class="pin-key" onclick="pressPinKey('Guest')" style="font-size: 0.8rem; border-radius: 12px; height: auto;">Skip</button>
+        </div>
+      </div>
       
       <!-- Toast Alert Box -->
       <div id="toast" class="toast-msg">Success!</div>
@@ -1663,6 +1904,17 @@
           </div>
 
           <!-- Challenge Mode Switcher -->
+          <!-- Pomodoro Study Timer Widget -->
+          <div class="pomodoro-container">
+            <div class="pomo-header"><i class="fa-solid fa-clock"></i> Pomodoro Timer</div>
+            <div id="pomo-time-display" class="pomo-time">25:00</div>
+            <div class="pomo-controls">
+              <button id="btn-pomo-start" class="pomo-btn" onclick="togglePomodoroTimer()">Start</button>
+              <button class="pomo-btn" onclick="resetPomodoroTimer()">Reset</button>
+              <button class="pomo-btn" onclick="switchPomodoroMode()">Break</button>
+            </div>
+          </div>
+          
           <div class="challenge-control-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--surface-color); border: 1.5px solid var(--card-border); padding: 10px 16px; border-radius: 16px;">
             <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem;">
               <i class="fa-solid fa-stopwatch" style="color: var(--primary-color);"></i>
@@ -1768,6 +2020,15 @@
         <div class="form-screen">
           <form id="flashcard-form" onsubmit="saveForm(event)">
             <!-- Question inputs -->
+            <!-- Mock AI generator panel -->
+            <div class="ai-generator-box">
+              <label class="form-label" style="color: var(--primary-color); display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Generate Question</label>
+              <div class="ai-input-group">
+                <input type="text" id="ai-prompt-input" class="ai-input" placeholder="e.g. History of World War II">
+                <button type="button" class="ai-btn" onclick="generateFlashcardAI()">Generate</button>
+              </div>
+            </div>
+            
             <div class="form-group">
               <label class="form-label">Question</label>
               <textarea id="form-question" class="form-input" placeholder="Enter your question" required></textarea>
@@ -1902,6 +2163,19 @@
                 <span class="switch-slider"></span>
               </label>
             </div>
+            <div class="settings-row" style="cursor: default; border-top: 1.5px solid var(--card-border); display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-palette"></i>
+                <span>Custom Theme Palette</span>
+              </div>
+              <div class="theme-picker-row">
+                <div class="theme-color-dot active" style="background: #6f35a5;" onclick="changeAppThemeColor('#6f35a5', this)"></div>
+                <div class="theme-color-dot" style="background: #2979ff;" onclick="changeAppThemeColor('#2979ff', this)"></div>
+                <div class="theme-color-dot" style="background: #00e676;" onclick="changeAppThemeColor('#00e676', this)"></div>
+                <div class="theme-color-dot" style="background: #ff9100;" onclick="changeAppThemeColor('#ff9100', this)"></div>
+                <div class="theme-color-dot" style="background: #ff1744;" onclick="changeAppThemeColor('#ff1744', this)"></div>
+              </div>
+            </div>
             <div class="settings-row" style="cursor: default; border-top: 1.5px solid var(--card-border);">
               <div class="settings-row-label">
                 <i class="fa-solid fa-volume-high"></i>
@@ -1909,6 +2183,16 @@
               </div>
               <label class="switch-widget">
                 <input type="checkbox" id="sound-effects-toggle" checked onchange="toggleSoundFX(this.checked)">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-row" style="cursor: default; border-top: 1.5px solid var(--card-border);">
+              <div class="settings-row-label">
+                <i class="fa-solid fa-lock"></i>
+                <span>Passcode Lock (1234)</span>
+              </div>
+              <label class="switch-widget">
+                <input type="checkbox" id="passcode-lock-toggle" onchange="togglePasscodeLock(this.checked)">
                 <span class="switch-slider"></span>
               </label>
             </div>
@@ -3241,8 +3525,9 @@
       let navIndex = 0;
       if (screenId === 'home') navIndex = 0;
       else if (screenId === 'study') navIndex = 1;
-      else if (screenId === 'stats') navIndex = 2;
-      else if (screenId === 'settings') navIndex = 3;
+      else if (screenId === 'game') navIndex = 2;
+      else if (screenId === 'stats') navIndex = 3;
+      else if (screenId === 'settings') navIndex = 4;
 
       if (navItems[navIndex]) {
         navItems[navIndex].classList.add('active');
@@ -3256,6 +3541,8 @@
         if (typeof renderDetailedCalendar === 'function') renderDetailedCalendar();
       } else if (screenId === 'home') {
         updateDashboardData();
+      } else if (screenId === 'game') {
+        startMatchGame();
       }
     }
 
