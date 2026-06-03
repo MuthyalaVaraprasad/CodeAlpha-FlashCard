@@ -257,10 +257,12 @@
 
     /* --- ONBOARDING SCREEN --- */
     #onboarding-screen {
-      padding: 30px 25px 25px 25px;
-      justify-content: space-between;
+      padding: 30px 25px 80px 25px;
+      justify-content: flex-start;
       align-items: center;
       background: var(--phone-bg);
+      overflow-y: auto;
+      gap: 24px;
     }
 
     .onboarding-header {
@@ -1297,10 +1299,11 @@
 
     /* --- GOOGLE SIGN-IN SCREEN --- */
     #google-signin-screen {
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       background: var(--phone-bg);
-      padding: 30px;
+      padding: 30px 20px;
+      overflow-y: auto;
     }
 
     .auth-container {
@@ -1309,8 +1312,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      height: 85%;
+      gap: 25px;
       margin: auto;
     }
 
@@ -1919,6 +1921,13 @@
               <div class="settings-row-label" style="color: var(--primary-color);">
                 <i class="fa-solid fa-rotate-left"></i>
                 <span>Reset Study Progress</span>
+              </div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <div class="settings-row" onclick="triggerLogOut()">
+              <div class="settings-row-label" style="color: #ff9100;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Log Out Session</span>
               </div>
               <i class="fa-solid fa-chevron-right"></i>
             </div>
@@ -2788,6 +2797,15 @@
       showToast("Backup complete! Flashcards secured. ✅");
     }
 
+    function triggerLogOut() {
+      showToast("Logging out...");
+      localStorage.removeItem('user_authenticated');
+      localStorage.removeItem('user_auth_type');
+      setTimeout(() => {
+        navigateScreen('google-signin');
+      }, 800);
+    }
+
     function triggerClearAllData() {
       openDialog('dialog-confirm-clear');
     }
@@ -2797,12 +2815,16 @@
       saveToLocalStorage();
       updateDashboardData();
       
-      closeDialog('dialog-confirm-clear');
-      showToast("Database entries cleared.");
+      localStorage.removeItem('onboarding_completed');
+      localStorage.removeItem('user_authenticated');
+      localStorage.removeItem('user_auth_type');
       
-      if (document.getElementById('settings-screen').classList.contains('active')) {
-        navigateScreen('settings');
-      }
+      closeDialog('dialog-confirm-clear');
+      showToast("Database cleared and sessions reset!");
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 800);
     }
 
     function triggerAboutApp() {

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/flashcard_provider.dart';
 import '../providers/theme_provider.dart';
 import '../themes/app_theme.dart';
+import 'splash_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -103,6 +104,27 @@ class SettingsScreen extends StatelessWidget {
                             content: Text("Backup complete! All flashcards are secured in Local Storage. ✅"),
                           ),
                         );
+                      },
+                      isDark: isDark,
+                    ),
+                    const Divider(height: 1, indent: 20, endIndent: 20),
+                    _buildSettingsTile(
+                      icon: Icons.logout_outlined,
+                      title: "Log Out Session",
+                      titleColor: Colors.orange,
+                      onTap: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.remove('user_authenticated');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Session logged out.")),
+                          );
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SplashScreen()),
+                            (route) => false,
+                          );
+                        }
                       },
                       isDark: isDark,
                     ),
