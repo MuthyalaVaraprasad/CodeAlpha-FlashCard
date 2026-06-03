@@ -1499,21 +1499,84 @@
       }
     }
 
-    @media (max-width: 360px) {
-      .pomodoro-container {
-        flex-direction: column !important;
-        gap: 6px !important;
-        padding: 8px !important;
+    @media (max-width: 380px) {
+      .home-content {
+        padding: 8px 12px 75px 12px !important;
       }
-      .pomo-header {
-        font-size: 0.75rem !important;
+      .total-banner {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
       }
-      .pomo-time {
+      .total-banner-value {
+        font-size: 2.2rem !important;
+      }
+      .category-card {
+        padding: 12px 14px !important;
+      }
+      .category-card-icon {
+        width: 38px !important;
+        height: 38px !important;
         font-size: 1.1rem !important;
+        margin-right: 10px !important;
       }
-      .pomo-btn {
-        padding: 4px 8px !important;
-        font-size: 0.7rem !important;
+      .category-card-title {
+        font-size: 0.9rem !important;
+      }
+      .category-card-count {
+        font-size: 0.78rem !important;
+      }
+      .stats-boxes-row {
+        gap: 10px !important;
+        margin-bottom: 16px !important;
+      }
+      .stats-summary-box {
+        padding: 12px !important;
+      }
+      .stats-summary-box h4 {
+        font-size: 0.72rem !important;
+      }
+      .stats-summary-box span {
+        font-size: 1.6rem !important;
+      }
+      .progress-circle-card {
+        padding: 16px 12px !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+      }
+      .calendar-card {
+        padding: 12px !important;
+      }
+      .calendar-header h4 {
+        font-size: 0.95rem !important;
+      }
+      .btn-primary {
+        padding: 12px !important;
+        font-size: 0.95rem !important;
+      }
+      .evaluation-row {
+        gap: 10px !important;
+      }
+      .btn-eval {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+      }
+      .card-space {
+        min-height: 240px !important;
+      }
+      .pin-title {
+        font-size: 1.3rem !important;
+      }
+      .pin-desc {
+        font-size: 0.8rem !important;
+        margin-bottom: 20px !important;
+      }
+      .pin-keyboard {
+        gap: 12px !important;
+      }
+      .pin-key {
+        width: 52px !important;
+        height: 52px !important;
+        font-size: 1.15rem !important;
       }
     }
 
@@ -1535,59 +1598,7 @@
       }
     }
   
-    /* --- POMODORO STUDY TIMER --- */
-    .pomodoro-container {
-      background: var(--surface-color);
-      border: 1.5px solid var(--card-border);
-      border-radius: 16px;
-      padding: 8px 10px;
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 6px var(--shadow-color);
-      gap: 6px;
-    }
-    .pomo-header {
-      font-size: 0.74rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      margin-bottom: 0;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-    .pomo-time {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--primary-color);
-      letter-spacing: 0.3px;
-      margin-bottom: 0;
-      white-space: nowrap;
-    }
-    .pomo-controls {
-      display: flex;
-      gap: 4px;
-    }
-    .pomo-btn {
-      padding: 4px 8px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: rgba(111, 53, 165, 0.08);
-      color: var(--primary-color);
-      transition: all 0.2s;
-    }
-    .pomo-btn:hover {
-      background: var(--primary-color);
-      color: #fff;
-    }
+    /* Pomodoro styles removed */
 
     /* --- PIN SECURITY LOCK OVERLAY --- */
     #pin-lock-screen {
@@ -1939,16 +1950,7 @@
           </div>
 
           <!-- Challenge Mode Switcher -->
-          <!-- Pomodoro Study Timer Widget -->
-          <div class="pomodoro-container">
-            <div class="pomo-header"><i class="fa-solid fa-clock"></i> Pomodoro Timer</div>
-            <div id="pomo-time-display" class="pomo-time">25:00</div>
-            <div class="pomo-controls">
-              <button id="btn-pomo-start" class="pomo-btn" onclick="togglePomodoroTimer()">Start</button>
-              <button class="pomo-btn" onclick="resetPomodoroTimer()">Reset</button>
-              <button class="pomo-btn" onclick="switchPomodoroMode()">Break</button>
-            </div>
-          </div>
+
           
           <div class="challenge-control-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--surface-color); border: 1.5px solid var(--card-border); padding: 10px 16px; border-radius: 16px;">
             <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem;">
@@ -2897,6 +2899,11 @@
       const passcodeCheckbox = document.getElementById('passcode-lock-toggle');
       if (passcodeCheckbox) passcodeCheckbox.checked = passcodeEnabled;
       
+      const configRow = document.getElementById('passcode-config-row');
+      if (configRow) {
+        configRow.style.display = passcodeEnabled ? 'flex' : 'none';
+      }
+      
       let customPin = localStorage.getItem('passcode_pin');
       if (!customPin) {
         customPin = "1234";
@@ -3809,6 +3816,10 @@
 
     function togglePasscodeLock(checked) {
       localStorage.setItem('passcode_lock_enabled', checked);
+      const configRow = document.getElementById('passcode-config-row');
+      if (configRow) {
+        configRow.style.display = checked ? 'flex' : 'none';
+      }
       if (checked) {
         const storedPin = localStorage.getItem('passcode_pin') || "1234";
         showToast("Passcode Security Enabled! PIN: " + storedPin);
