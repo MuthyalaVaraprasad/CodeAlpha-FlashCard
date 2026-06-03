@@ -1470,7 +1470,7 @@
     }
 
     /* --- RESPONSIVE MEDIA QUERIES --- */
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       body {
         padding: 0 !important;
         background: var(--phone-bg) !important;
@@ -3455,6 +3455,18 @@
       const stored = localStorage.getItem('flashcard_decks');
       if (stored) {
         flashcards = JSON.parse(stored);
+        // Force upgrade if they are running the old version of the app
+        if (flashcards.length < 100) {
+          flashcards = [...starterDecks];
+          saveToLocalStorage();
+          
+          categories = ["General Knowledge", "Computer Science", "Science"];
+          localStorage.setItem('flashcard_categories', JSON.stringify(categories));
+          
+          localStorage.removeItem('onboarding_completed');
+          localStorage.removeItem('user_authenticated');
+          localStorage.removeItem('user_auth_type');
+        }
       } else {
         flashcards = [...starterDecks];
         saveToLocalStorage();
