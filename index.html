@@ -1847,6 +1847,28 @@
               <span>Less active</span>
               <span>More active</span>
             </div>
+
+          <h3 class="section-title" style="margin-top: 25px; margin-bottom: 12px;">Detailed Study Calendar</h3>
+          <div class="calendar-card" style="background: var(--surface-color); border: 1.5px solid var(--card-border); padding: 18px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 4px 8px var(--shadow-color);">
+            <!-- Calendar Navigation Header -->
+            <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <button onclick="changeCalendarMonth(-1)" style="background: transparent; border: none; cursor: pointer; color: var(--primary-color); font-size: 1.1rem; padding: 4px;"><i class="fa-solid fa-chevron-left"></i></button>
+              <h4 id="calendar-month-year" style="font-weight: 800; font-size: 1.1rem; color: var(--text-color);">June 2026</h4>
+              <button onclick="changeCalendarMonth(1)" style="background: transparent; border: none; cursor: pointer; color: var(--primary-color); font-size: 1.1rem; padding: 4px;"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            
+            <!-- Calendar Grid -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Weekday Headers -->
+              <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase;">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+              </div>
+              <!-- Days Container -->
+              <div id="calendar-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center;">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
+          </div>
           </div>
 
           <h3 class="section-title" style="margin-bottom: 16px;">Categories Progress</h3>
@@ -2032,19 +2054,1099 @@
   <script>
     // --- STARTER/MOCK CARD DATASET ---
     const starterDecks = [
-      { id: 1, question: "What is the capital of France?", answer: "Paris", category: "General Knowledge", isStudied: false },
-      { id: 2, question: "Which planet is known as the Red Planet?", answer: "Mars", category: "General Knowledge", isStudied: false },
-      { id: 3, question: "Who wrote the play Hamlet?", answer: "William Shakespeare", category: "General Knowledge", isStudied: false },
-      { id: 4, question: "What is the chemical symbol for water?", answer: "H2O", category: "Science", isStudied: false },
-      { id: 5, question: "Who is known as the father of India?", answer: "Mahatma Gandhi", category: "General Knowledge", isStudied: false },
-      { id: 6, question: "What does CPU stand for?", answer: "Central Processing Unit", category: "Computer Science", isStudied: false },
-      { id: 7, question: "What is the primary language used to build Flutter apps?", answer: "Dart", category: "Computer Science", isStudied: false },
-      { id: 8, question: "What does HTML stand for?", answer: "HyperText Markup Language", category: "Computer Science", isStudied: false },
-      { id: 9, question: "Which planet is closest to the Sun?", answer: "Mercury", category: "Science", isStudied: false },
-      { id: 10, question: "What is the square root of 144?", answer: "12", category: "General Knowledge", isStudied: false },
-      { id: 11, question: "What gas do plants absorb during photosynthesis?", answer: "Carbon Dioxide", category: "Science", isStudied: false },
-      { id: 12, question: "What is the full form of SQL?", answer: "Structured Query Language", category: "Computer Science", isStudied: false }
-    ];
+  {
+    "id": 1,
+    "question": "What is the capital of France?",
+    "answer": "Paris",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 2,
+    "question": "Which planet is known as the Red Planet?",
+    "answer": "Mars",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 3,
+    "question": "Who wrote the play Hamlet?",
+    "answer": "William Shakespeare",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 4,
+    "question": "Who is known as the father of India?",
+    "answer": "Mahatma Gandhi",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 5,
+    "question": "What is the square root of 144?",
+    "answer": "12",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 6,
+    "question": "What is the currency of Japan?",
+    "answer": "Yen",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 7,
+    "question": "Which is the largest ocean on Earth?",
+    "answer": "Pacific Ocean",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 8,
+    "question": "What is the capital of the United States?",
+    "answer": "Washington D.C.",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 9,
+    "question": "Which is the longest river in the world?",
+    "answer": "Nile River",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 10,
+    "question": "What is the tallest mountain in the world?",
+    "answer": "Mount Everest",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 11,
+    "question": "Who painted the Mona Lisa?",
+    "answer": "Leonardo da Vinci",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 12,
+    "question": "Which is the largest country in the world by area?",
+    "answer": "Russia",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 13,
+    "question": "What is the currency of the United Kingdom?",
+    "answer": "Pound Sterling",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 14,
+    "question": "What is the smallest country in the world?",
+    "answer": "Vatican City",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 15,
+    "question": "What is the capital of Italy?",
+    "answer": "Rome",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 16,
+    "question": "What is the national animal of India?",
+    "answer": "Bengal Tiger",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 17,
+    "question": "What is the capital of Germany?",
+    "answer": "Berlin",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 18,
+    "question": "Who wrote the Harry Potter series?",
+    "answer": "J.K. Rowling",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 19,
+    "question": "What is the hardest natural substance on Earth?",
+    "answer": "Diamond",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 20,
+    "question": "What is the capital of Canada?",
+    "answer": "Ottawa",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 21,
+    "question": "Who discovered gravity?",
+    "answer": "Sir Isaac Newton",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 22,
+    "question": "Who was the first man to walk on the moon?",
+    "answer": "Neil Armstrong",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 23,
+    "question": "What is the capital of Australia?",
+    "answer": "Canberra",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 24,
+    "question": "Which is the largest hot desert in the world?",
+    "answer": "Sahara Desert",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 25,
+    "question": "Who wrote the novel War and Peace?",
+    "answer": "Leo Tolstoy",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 26,
+    "question": "Who is credited with inventing the telephone?",
+    "answer": "Alexander Graham Bell",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 27,
+    "question": "What is the capital of Spain?",
+    "answer": "Madrid",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 28,
+    "question": "Who painted The Starry Night?",
+    "answer": "Vincent van Gogh",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 29,
+    "question": "Which is the largest island in the world?",
+    "answer": "Greenland",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 30,
+    "question": "What is the capital of Brazil?",
+    "answer": "Brasilia",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 31,
+    "question": "Who wrote Pride and Prejudice?",
+    "answer": "Jane Austen",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 32,
+    "question": "Who is credited with inventing the electric light bulb?",
+    "answer": "Thomas Edison",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 33,
+    "question": "What is the capital of China?",
+    "answer": "Beijing",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 34,
+    "question": "Which is the largest mammal in the world?",
+    "answer": "Blue Whale",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 35,
+    "question": "Who discovered penicillin?",
+    "answer": "Alexander Fleming",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 36,
+    "question": "What is the capital of Egypt?",
+    "answer": "Cairo",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 37,
+    "question": "Who is the ancient Greek poet who wrote The Odyssey?",
+    "answer": "Homer",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 38,
+    "question": "Who created the cartoon character Mickey Mouse?",
+    "answer": "Walt Disney",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 39,
+    "question": "What is the capital of India?",
+    "answer": "New Delhi",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 40,
+    "question": "Which is the coldest continent on Earth?",
+    "answer": "Antarctica",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 41,
+    "question": "Who wrote the novel The Great Gatsby?",
+    "answer": "F. Scott Fitzgerald",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 42,
+    "question": "Who invented the printing press?",
+    "answer": "Johannes Gutenberg",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 43,
+    "question": "What is the capital of Russia?",
+    "answer": "Moscow",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 44,
+    "question": "Which is the smallest continent by land area?",
+    "answer": "Australia",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 45,
+    "question": "Who wrote Don Quixote?",
+    "answer": "Miguel de Cervantes",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 46,
+    "question": "What is the administrative capital of South Africa?",
+    "answer": "Pretoria",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 47,
+    "question": "Which is the largest continent on Earth?",
+    "answer": "Asia",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 48,
+    "question": "Who wrote Crime and Punishment?",
+    "answer": "Fyodor Dostoevsky",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 49,
+    "question": "Who was the first President of the United States?",
+    "answer": "George Washington",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 50,
+    "question": "What is the capital of the United Kingdom?",
+    "answer": "London",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 51,
+    "question": "Which country is the most populous in the world?",
+    "answer": "India",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 52,
+    "question": "Which language has the most native speakers?",
+    "answer": "Mandarin Chinese",
+    "category": "General Knowledge",
+    "isStudied": false
+  },
+  {
+    "id": 53,
+    "question": "What does CPU stand for?",
+    "answer": "Central Processing Unit",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 54,
+    "question": "What is the primary programming language used for Flutter?",
+    "answer": "Dart",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 55,
+    "question": "What does HTML stand for?",
+    "answer": "HyperText Markup Language",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 56,
+    "question": "What is the full form of SQL?",
+    "answer": "Structured Query Language",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 57,
+    "question": "What does RAM stand for?",
+    "answer": "Random Access Memory",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 58,
+    "question": "What does ROM stand for?",
+    "answer": "Read Only Memory",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 59,
+    "question": "Who is widely regarded as the first computer programmer?",
+    "answer": "Ada Lovelace",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 60,
+    "question": "Who created the Linux kernel?",
+    "answer": "Linus Torvalds",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 61,
+    "question": "What does CSS stand for?",
+    "answer": "Cascading Style Sheets",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 62,
+    "question": "Who is the co-founder of Microsoft?",
+    "answer": "Bill Gates",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 63,
+    "question": "Who created the Python programming language?",
+    "answer": "Guido van Rossum",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 64,
+    "question": "What does HTTP stand for?",
+    "answer": "HyperText Transfer Protocol",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 65,
+    "question": "Who was the co-founder of Apple Inc.?",
+    "answer": "Steve Jobs",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 66,
+    "question": "What does IP stand for in IP Address?",
+    "answer": "Internet Protocol",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 67,
+    "question": "Who created the Java programming language?",
+    "answer": "James Gosling",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 68,
+    "question": "What does DNS stand for?",
+    "answer": "Domain Name System",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 69,
+    "question": "Who designed the C++ programming language?",
+    "answer": "Bjarne Stroustrup",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 70,
+    "question": "What does URL stand for?",
+    "answer": "Uniform Resource Locator",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 71,
+    "question": "Who invented the World Wide Web?",
+    "answer": "Tim Berners-Lee",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 72,
+    "question": "What does API stand for?",
+    "answer": "Application Programming Interface",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 73,
+    "question": "Who created JavaScript?",
+    "answer": "Brendan Eich",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 74,
+    "question": "What does GUI stand for?",
+    "answer": "Graphical User Interface",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 75,
+    "question": "Who are the co-founders of Google?",
+    "answer": "Larry Page and Sergey Brin",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 76,
+    "question": "What does VPN stand for?",
+    "answer": "Virtual Private Network",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 77,
+    "question": "Who created the C programming language?",
+    "answer": "Dennis Ritchie",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 78,
+    "question": "What does BIOS stand for?",
+    "answer": "Basic Input Output System",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 79,
+    "question": "Who is the co-founder of Facebook?",
+    "answer": "Mark Zuckerberg",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 80,
+    "question": "What does LAN stand for?",
+    "answer": "Local Area Network",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 81,
+    "question": "Who invented the Git version control system?",
+    "answer": "Linus Torvalds",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 82,
+    "question": "What does JSON stand for?",
+    "answer": "JavaScript Object Notation",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 83,
+    "question": "Who wrote the first compiler?",
+    "answer": "Grace Hopper",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 84,
+    "question": "What does IDE stand for?",
+    "answer": "Integrated Development Environment",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 85,
+    "question": "Who is the Turing Award named after?",
+    "answer": "Alan Turing",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 86,
+    "question": "What does PDF stand for?",
+    "answer": "Portable Document Format",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 87,
+    "question": "Who wrote the influential book 'Design Patterns'?",
+    "answer": "Gang of Four",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 88,
+    "question": "What does SMTP stand for?",
+    "answer": "Simple Mail Transfer Protocol",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 89,
+    "question": "Who is known as the father of computers?",
+    "answer": "Charles Babbage",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 90,
+    "question": "What does SSD stand for?",
+    "answer": "Solid State Drive",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 91,
+    "question": "Who invented the computer mouse?",
+    "answer": "Douglas Engelbart",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 92,
+    "question": "What does XML stand for?",
+    "answer": "Extensible Markup Language",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 93,
+    "question": "What does TCP stand for?",
+    "answer": "Transmission Control Protocol",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 94,
+    "question": "Who invented the Relational Database model?",
+    "answer": "Edgar F. Codd",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 95,
+    "question": "What does FTP stand for?",
+    "answer": "File Transfer Protocol",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 96,
+    "question": "Who co-developed the Unix operating system?",
+    "answer": "Ken Thompson & Dennis Ritchie",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 97,
+    "question": "What does CLI stand for?",
+    "answer": "Command Line Interface",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 98,
+    "question": "Who designed the Von Neumann architecture?",
+    "answer": "John von Neumann",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 99,
+    "question": "What does WAN stand for?",
+    "answer": "Wide Area Network",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 100,
+    "question": "Who is known as the father of Artificial Intelligence?",
+    "answer": "John McCarthy",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 101,
+    "question": "What does OS stand for?",
+    "answer": "Operating System",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 102,
+    "question": "Which protocol is used to secure web traffic?",
+    "answer": "HTTPS",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 103,
+    "question": "What is the binary representation of decimal number 10?",
+    "answer": "1010",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 104,
+    "question": "What does OOP stand for?",
+    "answer": "Object-Oriented Programming",
+    "category": "Computer Science",
+    "isStudied": false
+  },
+  {
+    "id": 105,
+    "question": "What is the chemical symbol for water?",
+    "answer": "H2O",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 106,
+    "question": "Which planet is closest to the Sun?",
+    "answer": "Mercury",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 107,
+    "question": "What gas do plants absorb during photosynthesis?",
+    "answer": "Carbon Dioxide",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 108,
+    "question": "What is the approximate speed of light?",
+    "answer": "300,000 km/s",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 109,
+    "question": "What is the chemical symbol for Gold?",
+    "answer": "Au",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 110,
+    "question": "What is known as the powerhouse of the cell?",
+    "answer": "Mitochondria",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 111,
+    "question": "What substance gives blood its red color?",
+    "answer": "Hemoglobin",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 112,
+    "question": "What is the unit of electrical resistance?",
+    "answer": "Ohm",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 113,
+    "question": "What is the chemical symbol for Oxygen?",
+    "answer": "O",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 114,
+    "question": "Which acid is found in lemons?",
+    "answer": "Citric Acid",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 115,
+    "question": "What is the largest organ in the human body?",
+    "answer": "Skin",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 116,
+    "question": "What is the SI unit of force?",
+    "answer": "Newton",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 117,
+    "question": "What is the chemical symbol for Iron?",
+    "answer": "Fe",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 118,
+    "question": "Which is the nearest star to Earth?",
+    "answer": "Sun",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 119,
+    "question": "Which gas makes up 78% of Earth's atmosphere?",
+    "answer": "Nitrogen",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 120,
+    "question": "What is normal human body temperature in Celsius?",
+    "answer": "37°C",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 121,
+    "question": "What is the unit of frequency?",
+    "answer": "Hertz",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 122,
+    "question": "What is the chemical symbol for Sodium?",
+    "answer": "Na",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 123,
+    "question": "Who formulated the theory of relativity?",
+    "answer": "Albert Einstein",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 124,
+    "question": "What is the smallest particle of an element?",
+    "answer": "Atom",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 125,
+    "question": "Which is the lightest element in the periodic table?",
+    "answer": "Hydrogen",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 126,
+    "question": "Which type of mirror is used in car headlights?",
+    "answer": "Concave Mirror",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 127,
+    "question": "What is the chemical symbol for Silver?",
+    "answer": "Ag",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 128,
+    "question": "Which is the master gland of the endocrine system?",
+    "answer": "Pituitary Gland",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 129,
+    "question": "Which instrument is used to measure atmospheric pressure?",
+    "answer": "Barometer",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 130,
+    "question": "What is the chemical symbol for Helium?",
+    "answer": "He",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 131,
+    "question": "Who discovered the laws of planetary motion?",
+    "answer": "Johannes Kepler",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 132,
+    "question": "Which gas is commonly used in electric light bulbs?",
+    "answer": "Argon",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 133,
+    "question": "What is the hardest substance in the human body?",
+    "answer": "Tooth Enamel",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 134,
+    "question": "What is the chemical symbol for Carbon?",
+    "answer": "C",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 135,
+    "question": "Who discovered radioactivity?",
+    "answer": "Henri Becquerel",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 136,
+    "question": "What is the outermost solid layer of the Earth?",
+    "answer": "Crust",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 137,
+    "question": "Which instrument is used to measure earthquakes?",
+    "answer": "Seismograph",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 138,
+    "question": "What is the chemical symbol for Nitrogen?",
+    "answer": "N",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 139,
+    "question": "What is the process of a liquid turning into a gas?",
+    "answer": "Evaporation",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 140,
+    "question": "What is the main component of natural gas?",
+    "answer": "Methane",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 141,
+    "question": "What is the study of plants called?",
+    "answer": "Botany",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 142,
+    "question": "What is the chemical symbol for Copper?",
+    "answer": "Cu",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 143,
+    "question": "Who is credited with creating the periodic table?",
+    "answer": "Dmitri Mendeleev",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 144,
+    "question": "What is the study of animals called?",
+    "answer": "Zoology",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 145,
+    "question": "What is the main gas that makes up the Sun?",
+    "answer": "Hydrogen",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 146,
+    "question": "What is the chemical symbol for Calcium?",
+    "answer": "Ca",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 147,
+    "question": "What type of lens is present in the human eye?",
+    "answer": "Convex Lens",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 148,
+    "question": "Which is the primary source of energy for Earth?",
+    "answer": "Sun",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 149,
+    "question": "What is the chemical symbol for Potassium?",
+    "answer": "K",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 150,
+    "question": "Which acid is present in an ant's sting?",
+    "answer": "Formic Acid",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 151,
+    "question": "What is the study of earthquakes called?",
+    "answer": "Seismology",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 152,
+    "question": "What is the chemical symbol for Lead?",
+    "answer": "Pb",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 153,
+    "question": "What is the boiling point of water in Celsius?",
+    "answer": "100°C",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 154,
+    "question": "Who is known as the father of modern chemistry?",
+    "answer": "Antoine Lavoisier",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 155,
+    "question": "What is the chemical symbol for Zinc?",
+    "answer": "Zn",
+    "category": "Science",
+    "isStudied": false
+  },
+  {
+    "id": 156,
+    "question": "Which is the only natural satellite of Earth?",
+    "answer": "Moon",
+    "category": "Science",
+    "isStudied": false
+  }
+];
 
     // --- APPLICATION VARIABLES ---
     let flashcards = [];
@@ -2151,6 +3253,7 @@
         initializeStudyDeck();
       } else if (screenId === 'stats') {
         renderProgressStats();
+        if (typeof renderDetailedCalendar === 'function') renderDetailedCalendar();
       } else if (screenId === 'home') {
         updateDashboardData();
       }
@@ -3127,6 +4230,80 @@
         toast.style.display = 'none';
       }, 2000);
     }
-  </script>
+  
+    // --- MONTHLY CALENDAR RENDERING ENGINE ---
+    let calendarDate = new Date();
+
+    function changeCalendarMonth(delta) {
+      calendarDate.setMonth(calendarDate.getMonth() + delta);
+      renderDetailedCalendar();
+    }
+
+    function renderDetailedCalendar() {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+      
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const headerText = document.getElementById('calendar-month-year');
+      if (headerText) {
+        headerText.innerText = `${monthNames[month]} ${year}`;
+      }
+      
+      let studyHistory = [];
+      const storedHistory = localStorage.getItem('flashcard_study_history');
+      if (storedHistory) {
+        studyHistory = JSON.parse(storedHistory);
+      }
+      
+      const grid = document.getElementById('calendar-days-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      
+      const firstDay = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
+      
+      for (let i = 0; i < firstDay; i++) {
+        const offsetCell = document.createElement('div');
+        offsetCell.style.width = '32px';
+        offsetCell.style.height = '32px';
+        grid.appendChild(offsetCell);
+      }
+      
+      const today = new Date();
+      for (let day = 1; day <= totalDays; day++) {
+        const cell = document.createElement('div');
+        cell.innerText = day;
+        cell.style.width = '32px';
+        cell.style.height = '32px';
+        cell.style.display = 'flex';
+        cell.style.alignItems = 'center';
+        cell.style.justifyContent = 'center';
+        cell.style.margin = 'auto';
+        cell.style.borderRadius = '50%';
+        cell.style.fontSize = '0.85rem';
+        cell.style.fontWeight = '700';
+        cell.style.color = 'var(--text-color)';
+        cell.style.transition = 'all 0.2s';
+        
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        if (studyHistory.includes(dateStr)) {
+          cell.style.background = 'var(--primary-color)';
+          cell.style.color = '#fff';
+          cell.style.boxShadow = '0 2px 6px rgba(111, 53, 165, 0.3)';
+        }
+        
+        if (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year) {
+          cell.style.border = '2px solid var(--primary-color)';
+          cell.style.fontWeight = '800';
+          if (!studyHistory.includes(dateStr)) {
+            cell.style.color = 'var(--primary-color)';
+          }
+        }
+        
+        grid.appendChild(cell);
+      }
+    }
+</script>
 </body>
 </html>

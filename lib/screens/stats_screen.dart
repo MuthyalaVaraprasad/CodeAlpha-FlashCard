@@ -193,7 +193,14 @@ class StatsScreen extends StatelessWidget {
                   );
                 }).toList(),
               
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              Text(
+                "Detailed Study Calendar",
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              StudyCalendarWidget(studyHistory: provider.studyHistory),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -238,6 +245,131 @@ class StatsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class StudyCalendarWidget extends StatefulWidget {
+  final List<String> studyHistory;
+
+  const StudyCalendarWidget({super.key, required this.studyHistory});
+
+  @override
+  State<StudyCalendarWidget> createState() => _StudyCalendarWidgetState();
+}
+
+class _StudyCalendarWidgetState extends State<StudyCalendarWidget> {
+  DateTime _selectedMonth = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    final firstDayOffset = DateTime(_selectedMonth.year, _selectedMonth.month, 1).weekday % 7;
+    final totalDays = DateTime(_selectedMonth.year, _selectedMonth.month + 1, 0).day;
+
+    return Card(
+      elevation: 2,
+      color: isDark ? AppTheme.darkSurfaceColor : AppTheme.lightSurfaceColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left, color: AppTheme.primaryColor),
+                  onPressed: () {
+                    setState(() {
+                      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+                    });
+                  },
+                ),
+                Text(
+                  "${monthNames[_selectedMonth.month - 1]} ${_selectedMonth.year}",
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right, color: AppTheme.primaryColor),
+                  onPressed: () {
+                    setState(() {
+                      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: const ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) {
+                return SizedBox(
+                  width: 32,
+                  child: Text(
+                    day,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                mainAxisSpacing: 6,
+                crossAxisSpacing: 6,
+              ),
+              itemCount: firstDayOffset + totalDays,
+              itemBuilder: (context, index) {
+                if (index < firstDayOffset) {
+                  return const SizedBox();
+                }
+
+                final dayNum = index - firstDayOffset + 1;
+                final dateStr = "${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}-${dayNum.toString().padLeft(2, '0')}";
+                final isStudied = widget.studyHistory.contains(dateStr);
+
+                final now = DateTime.now();
+                final isToday = now.day == dayNum && now.month == _selectedMonth.month && now.year == _selectedMonth.year;
+
+                return Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isStudied ? AppTheme.primaryColor : Colors.transparent,
+                    shape: BoxShape.circle,
+                    border: isToday ? Border.all(color: AppTheme.primaryColor, width: 2) : null,
+                  ),
+                  child: Text(
+                    "$dayNum",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: isStudied
+                          ? Colors.white
+                          : (isToday ? AppTheme.primaryColor : (isDark ? Colors.white : AppTheme.lightTextColor)),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

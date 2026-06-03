@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../database/db_helper.dart';
 import '../models/flashcard_model.dart';
 
@@ -11,6 +12,7 @@ class FlashcardProvider with ChangeNotifier {
   int _currentStudyIndex = 0;
   bool _isCardFlipped = false;
   String _searchQuery = "";
+  List<String> _studyHistory = [];
 
   // Getters
   List<Flashcard> get flashcards => _flashcards;
@@ -19,6 +21,7 @@ class FlashcardProvider with ChangeNotifier {
   int get currentStudyIndex => _currentStudyIndex;
   bool get isCardFlipped => _isCardFlipped;
   String get searchQuery => _searchQuery;
+  List<String> get studyHistory => _studyHistory;
 
   // Filtered lists based on Category and Search Query
   List<Flashcard> get filteredFlashcards {
@@ -71,6 +74,7 @@ class FlashcardProvider with ChangeNotifier {
 
     try {
       _flashcards = await _dbHelper.fetchAllFlashcards();
+      await loadStudyHistory();
     } catch (e) {
       debugPrint("Error loading flashcards: $e");
     } finally {
@@ -79,6 +83,12 @@ class FlashcardProvider with ChangeNotifier {
       _isCardFlipped = false;
       notifyListeners();
     }
+  }
+
+  Future<void> loadStudyHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    _studyHistory = prefs.getStringList('flashcard_study_history') ?? [];
+    notifyListeners();
   }
 
   // Add Flashcard
@@ -186,6 +196,16 @@ class FlashcardProvider with ChangeNotifier {
     if (index != -1) {
       final updated = _flashcards[index].copyWith(isStudied: isStudied);
       await updateFlashcard(updated);
+
+      if (isStudied) {
+        final prefs = await SharedPreferences.getInstance();
+        final todayStr = DateTime.now().toIso8601String().split('T')[0];
+        if (!_studyHistory.contains(todayStr)) {
+          _studyHistory.add(todayStr);
+          await prefs.setStringList('flashcard_study_history', _studyHistory);
+          notifyListeners();
+        }
+      }
     }
   }
 
@@ -200,6 +220,11 @@ class FlashcardProvider with ChangeNotifier {
     }
     _currentStudyIndex = 0;
     _isCardFlipped = false;
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('flashcard_study_history');
+    _studyHistory.clear();
+    
     notifyListeners();
   }
 }
