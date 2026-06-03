@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/flashcard_provider.dart';
 import '../providers/theme_provider.dart';
 import '../themes/app_theme.dart';
@@ -226,12 +227,18 @@ class SettingsScreen extends StatelessWidget {
             child: const Text("Cancel"),
           ),
           TextButton(
-            onPressed: () {
-              provider.clearAllData();
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("All database entries cleared."), backgroundColor: Colors.redAccent),
-              );
+            onPressed: () async {
+              await provider.clearAllData();
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('onboarding_completed');
+              await prefs.remove('user_authenticated');
+              
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("All database entries cleared."), backgroundColor: Colors.redAccent),
+                );
+              }
             },
             child: const Text("Clear All", style: TextStyle(color: Colors.red)),
           ),
